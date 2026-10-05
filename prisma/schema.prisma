@@ -1,0 +1,200 @@
+// Prisma ORM schema — Appointment Booking & CRM
+// Prisma 7: datasource url lives in prisma.config.ts
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// -------------------------------------------------------------
+// ENUMS
+// -------------------------------------------------------------
+
+enum Role {
+  SUPER_ADMIN
+}
+
+enum AppointmentStatus {
+  CONFIRMED
+  RESCHEDULED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum AppointmentType {
+  INITIAL_CONSULTATION
+  SALES_PERFORMANCE_DISCUSSION
+  SALES_PERFORMANCE_REVIEW
+  FOLLOW_UP_MEETING
+}
+
+enum ActionType {
+  BOOKED
+  RESCHEDULED_BY_PROSPECT
+  RESCHEDULED_BY_ADMIN
+  CANCELLED_BY_PROSPECT
+  CANCELLED_BY_ADMIN
+  MARKED_COMPLETED_BY_ADMIN
+  CONFIRMATION_EMAIL_SENT
+  REMINDER_24H_SENT
+  REMINDER_1H_SENT
+  EMAIL_RESENT_BY_ADMIN
+}
+
+// -------------------------------------------------------------
+// ADMIN USERS (Authentication & Role Based Access)
+// -------------------------------------------------------------
+
+model AdminUser {
+  id           String           @id @default(uuid()) @db.Uuid
+  name         String           @db.VarChar(120)
+  email        String           @unique @db.VarChar(255)
+  passwordHash String           @map("password_hash")
+  role         Role             @default(SUPER_ADMIN)
+  isActive     Boolean          @default(true) @map("is_active")
+  lastLoginAt  DateTime?        @map("last_login_at") @db.Timestamptz(6)
+  createdAt    DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  performedLogs AppointmentLog[]
+
+  refreshTokens AdminRefreshToken[]
+
+  @@map("admin_users")
+}
+
+// -------------------------------------------------------------
+// REFRESH TOKENS (Opaque, hashed-at-rest, rotated on use)
+// -------------------------------------------------------------
+
+model AdminRefreshToken {
+  id           String    @id @default(uuid()) @db.Uuid
+  admin        AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  adminId      String    @map("admin_id") @db.Uuid
+  tokenHash    String    @unique @map("token_hash")
+  expiresAt    DateTime  @map("expires_at") @db.Timestamptz(6)
+  revokedAt    DateTime? @map("revoked_at") @db.Timestamptz(6)
+  replacedById String?   @map("replaced_by_id") @db.Uuid
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([adminId], name: "idx_refresh_token_admin")
+  @@map("admin_refresh_tokens")
+}
+
+// -------------------------------------------------------------
+// APPOINTMENTS (Master Booking Records)
+// -------------------------------------------------------------
+
+model Appointment {
+  id                  String            @id @default(uuid()) @db.Uuid
+
+  contactName         String            @map("contact_name") @db.VarChar(150)
+  companyName         String            @map("company_name") @db.VarChar(150)
+  email               String            @db.VarChar(255)
+  phone               String?           @db.VarChar(50)
+  notes               String?           @db.Text
+
+  appointmentType     AppointmentType   @default(INITIAL_CONSULTATION) @map("appointment_type")
+  durationMinutes     Int               @default(30) @map("duration_minutes")
+
+  scheduledAtUtc      DateTime          @map("scheduled_at_utc") @db.Timestamptz(6)
+  prospectTimezone    String            @map("prospect_timezone") @db.VarChar(100)
+
+  status              AppointmentStatus @default(CONFIRMED)
+  rescheduleToken     String            @unique @default(uuid()) @map("reschedule_token") @db.Uuid
+  cancelToken         String            @unique @default(uuid()) @map("cancel_token") @db.Uuid
+  cancellationReason  String?           @map("cancellation_reason") @db.Text
+
+  reminder24hSent     Boolean           @default(false) @map("reminder_24h_sent")
+  reminder24hSentAt   DateTime?         @map("reminder_24h_sent_at") @db.Timestamptz(6)
+  reminder1hSent      Boolean           @default(false) @map("reminder_1h_sent")
+  reminder1hSentAt    DateTime?         @map("reminder_1h_sent_at") @db.Timestamptz(6)
+
+  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  history             AppointmentLog[]
+  emailDeliveries     EmailDelivery[]
+
+  @@index([scheduledAtUtc, status], name: "idx_appointment_schedule_status")
+  @@index([email], name: "idx_appointment_email")
+  @@index([rescheduleToken], name: "idx_appointment_reschedule_token")
+  @@index([cancelToken], name: "idx_appointment_cancel_token")
+  @@map("appointments")
+}
+
+// -------------------------------------------------------------
+// APPOINTMENT AUDIT & HISTORY LOGS
+// -------------------------------------------------------------
+
+model AppointmentLog {
+  id            String       @id @default(uuid()) @db.Uuid
+  appointmentId String       @map("appointment_id") @db.Uuid
+  appointment   Appointment  @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  action        ActionType
+  previousTime  DateTime?    @map("previous_time") @db.Timestamptz(6)
+  newTime       DateTime?    @map("new_time") @db.Timestamptz(6)
+  notes         String?      @db.Text
+
+  adminUserId   String?      @map("admin_user_id") @db.Uuid
+  adminUser     AdminUser?   @relation(fields: [adminUserId], references: [id], onDelete: SetNull)
+
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([appointmentId], name: "idx_log_appointment_id")
+  @@map("appointment_logs")
+}
+
+// -------------------------------------------------------------
+// EMAIL DELIVERIES
+// One row per outbound message, written the moment the SMTP server
+// accepts it. `messageId` is the only handle that lets a later
+// provider webhook be matched back to this appointment, so it is
+// stored even though we do not yet consume webhooks.
+// -------------------------------------------------------------
+
+enum EmailDeliveryStatus {
+  // Server accepted the message. Nothing is known about arrival yet.
+  ACCEPTED
+  // Final states — populated when a provider webhook lands.
+  DELIVERED
+  BOUNCED
+  DEFERRED
+  DROPPED
+  SPAMREPORT
+  UNSUBSCRIBED
+}
+
+model EmailDelivery {
+  id            String              @id @default(uuid()) @db.Uuid
+  appointmentId String?             @map("appointment_id") @db.Uuid
+  appointment   Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  /// Normalised without angle brackets so provider webhooks match directly.
+  messageId     String?             @map("message_id") @db.VarChar(255)
+
+  /// Which template went out, e.g. BOOKING_CONFIRMATION / REMINDER_1H.
+  kind          String              @db.VarChar(60)
+  recipient     String              @db.VarChar(255)
+  subject       String?             @db.VarChar(255)
+
+  status        EmailDeliveryStatus @default(ACCEPTED)
+  /// Provider-supplied explanation once a final status arrives.
+  statusReason  String?             @map("status_reason") @db.Text
+  /// When the provider last reported a delivery event.
+  statusAt      DateTime?           @map("status_at") @db.Timestamptz(6)
+
+  createdAt     DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([messageId], name: "idx_email_delivery_message_id")
+  @@index([appointmentId], name: "idx_email_delivery_appointment_id")
+  @@index([status], name: "idx_email_delivery_status")
+  @@map("email_deliveries")
+}
