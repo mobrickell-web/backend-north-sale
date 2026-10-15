@@ -17,13 +17,17 @@ import { normalizeMessageId } from "./message-id";
 import {
   BRAND_FROM,
   type AppointmentLinks,
+  type ContactMessageDetails,
   type MailContent,
   buildBookingEmails,
   buildCancellationEmails,
+  buildContactEmail,
   buildReminderEmails,
   buildRescheduleEmails,
   getEmailLogoAttachment,
 } from "./mail.templates";
+
+const CONTACT_INBOX = "contact@northpointsalesgroup.com";
 
 type MailConfig = {
   host?: string;
@@ -106,6 +110,7 @@ export class MailService {
     to: string,
     content: MailContent,
     context?: { appointmentId?: string; kind: EmailKind },
+    replyTo?: string,
   ): Promise<boolean> {
     const { from, dryRun } = this.cfg;
     if (!from || !to) {
@@ -127,6 +132,7 @@ export class MailService {
       const info = await transporter.sendMail({
         from: `"${BRAND_FROM}" <${from}>`,
         to,
+        ...(replyTo ? { replyTo } : {}),
         subject: content.subject,
         text: content.text,
         html: content.html,
@@ -249,6 +255,11 @@ export class MailService {
       });
     }
     return prospectSent;
+  }
+
+  async sendContactMessage(details: ContactMessageDetails): Promise<boolean> {
+    const to = this.cfg.notifyTo ?? CONTACT_INBOX;
+    return this.send(to, buildContactEmail(details), undefined, details.email);
   }
 
   async sendReminderNotifications(

@@ -41,7 +41,7 @@ export function calendarEventDetails(
   const description = [
     `${typeLabel} with ${ORGANIZER}.`,
     `When: ${when} (${timezoneLabel})`,
-    `Contact: ${appointment.contactName}${appointment.companyName ? ` — ${appointment.companyName}` : ""}`,
+    `Contact: ${appointment.contactName}`,
     `Need to change this? Reschedule: ${options.rescheduleUrl}`,
   ].join("\n");
 

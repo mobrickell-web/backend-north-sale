@@ -81,14 +81,19 @@ function detailRows(rows: { label: string; value: string; href?: string }[]) {
     .join("");
 }
 
-function actionButtons(links: AppointmentLinks) {
+function actionButtons(
+  links: AppointmentLinks,
+  options: { showCancel?: boolean; showCalendar?: boolean } = {},
+) {
+  const { showCancel = true, showCalendar = true } = options;
   const button = (href: string, label: string, secondary = false) =>
     `<a href="${escapeHtml(href)}" style="display:inline-block;margin:0 6px 8px;padding:12px 20px;border-radius:999px;background:${secondary ? BRAND.navy : BRAND.bronze};color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:700;text-decoration:none;letter-spacing:0.02em;">${escapeHtml(label)}</a>`;
 
   // Must stay table rows: a bare <div> inside <table> is invalid HTML and
   // email clients reflow or drop it.
-  const calendar = links.calendar
-    ? `
+  const calendar =
+    showCalendar && links.calendar
+      ? `
     <tr>
       <td style="padding:12px 28px 8px;text-align:center;">
         <span style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${BRAND.muted};">Add to your calendar</span>
@@ -99,13 +104,13 @@ function actionButtons(links: AppointmentLinks) {
         </div>
       </td>
     </tr>`
-    : "";
+      : "";
 
   return `
     <tr>
       <td style="padding:20px 28px 8px;text-align:center;">
         ${button(links.reschedule, "Reschedule")}
-        ${button(links.cancel, "Cancel")}
+        ${showCancel ? button(links.cancel, "Cancel") : ""}
       </td>
     </tr>
     ${calendar}
@@ -202,7 +207,7 @@ function emailShell({
                     <p style="margin:0 0 4px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#C9D1D9;">
                       <a href="mailto:contact@northpointsalesgroup.com" style="color:${BRAND.bronzeSoft};text-decoration:none;">contact@northpointsalesgroup.com</a>
                       &nbsp;·&nbsp;
-                      <a href="tel:+19702501439" style="color:${BRAND.bronzeSoft};text-decoration:none;">(970) 250-1439</a>
+                      <a href="tel:+18006966971" style="color:${BRAND.bronzeSoft};text-decoration:none;">800-696-6971</a>
                     </p>
                     <p style="margin:8px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#9AA3AD;">
                       ${escapeHtml(footerNote)}
@@ -489,6 +494,58 @@ export function buildReminderEmails(
   };
 }
 
+export type ContactMessageDetails = {
+  name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  message: string;
+};
+
+export function buildContactEmail(details: ContactMessageDetails): MailContent {
+  const rows = [
+    { label: "Name", value: details.name },
+    { label: "Email", value: details.email, href: `mailto:${details.email}` },
+    ...(details.phone
+      ? [
+          {
+            label: "Phone",
+            value: details.phone,
+            href: `tel:${details.phone.replace(/[^\d+]/g, "")}`,
+          },
+        ]
+      : []),
+    ...(details.company ? [{ label: "Company", value: details.company }] : []),
+  ];
+
+  return {
+    subject: `New contact message — ${details.name}`,
+    text: [
+      "New message from the NORTH POINT SALES GROUP website contact form:",
+      "",
+      `Name: ${details.name}`,
+      `Email: ${details.email}`,
+      ...(details.phone ? [`Phone: ${details.phone}`] : []),
+      ...(details.company ? [`Company: ${details.company}`] : []),
+      "",
+      "Message:",
+      details.message,
+    ].join("\n"),
+    html: emailShell({
+      badge: "Contact Form · Website",
+      heading: "New Contact Message",
+      introHtml: `<p style="margin:0;">A visitor sent a message through the contact form on the NORTH POINT SALES GROUP website. Reply directly to this email to respond.</p>`,
+      detailsHeading: "Sender Details",
+      rows,
+      afterHtml: `
+        <p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:${BRAND.bronze};">Message</p>
+        <div style="padding:14px 16px;background:${BRAND.cream};border:1px solid ${BRAND.border};border-radius:10px;color:${BRAND.navy};white-space:pre-wrap;">${escapeHtml(details.message)}</div>
+      `,
+      footerNote: "Internal notification from northpointsalesgroup.com",
+    }),
+  };
+}
+
 export function buildCancellationEmails(
   details: AppointmentDetails,
   links: AppointmentLinks,
@@ -514,7 +571,10 @@ export function buildCancellationEmails(
         "Your appointment with NORTH POINT SALES GROUP has been cancelled.",
         reason ? `Reason: ${reason}` : "",
         "",
-        "If this was a mistake, you can book a new appointment on our website, or reply to this email.",
+        "If this was a mistake, you can reschedule the same appointment here:",
+        links.reschedule,
+        "",
+        "Or simply reply to this email, or call 800-696-6971, and we'll help.",
         "",
         "— NORTH POINT SALES GROUP",
       ]
@@ -526,10 +586,14 @@ export function buildCancellationEmails(
         introHtml: `
           <p style="margin:0 0 10px;">Hi <strong style="color:${BRAND.navy};">${escapeHtml(details.contactName)}</strong>,</p>
           <p style="margin:0 0 10px;">Your appointment with <strong style="color:${BRAND.navy};">NORTH POINT SALES GROUP</strong> has been cancelled.</p>
-          <p style="margin:0;color:${BRAND.navy};font-weight:600;">If this was a mistake, just book again on our website or reply to this email.</p>
+          <p style="margin:0;color:${BRAND.navy};font-weight:600;">If this was a mistake, use the button below to reschedule the same appointment, reply to this email, or call <a href="tel:+18006966971" style="color:${BRAND.bronze};text-decoration:none;font-weight:700;">800-696-6971</a>.</p>
         `,
         detailsHeading: "Cancelled Appointment",
         rows: cancelledRows,
+        actionsHtml: actionButtons(links, {
+          showCancel: false,
+          showCalendar: false,
+        }),
         footerNote: "This is an automated cancellation notification",
       }),
     },

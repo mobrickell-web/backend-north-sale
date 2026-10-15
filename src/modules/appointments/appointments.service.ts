@@ -114,7 +114,8 @@ export class AppointmentsService {
     if (!appointment) {
       throw new NotFoundException("Appointment not found");
     }
-    this.assertMutable(appointment.status);
+    this.assertReschedulable(appointment.status);
+    const wasCancelled = appointment.status === "CANCELLED";
 
     const newScheduledAtUtc = this.toUtc(dto.date, dto.time, dto.timezone);
 
@@ -123,6 +124,8 @@ export class AppointmentsService {
         "The selected date and time is in the past",
       );
     }
+    // A reschedule (including reviving a cancelled appointment) must always
+    // land on a new slot — re-picking the existing time is not allowed.
     if (newScheduledAtUtc.getTime() === appointment.scheduledAtUtc.getTime()) {
       throw new BadRequestException("No change in the appointment time");
     }
@@ -133,6 +136,7 @@ export class AppointmentsService {
         scheduledAtUtc: newScheduledAtUtc,
         prospectTimezone: dto.timezone,
         status: "RESCHEDULED",
+        cancellationReason: null,
         // Reminder offsets are relative to scheduledAtUtc, so a moved appointment
         // needs a fresh pair of reminders against the new time.
         reminder24hSent: false,
@@ -147,7 +151,9 @@ export class AppointmentsService {
       "RESCHEDULED_BY_PROSPECT",
       appointment.scheduledAtUtc,
       newScheduledAtUtc,
-      "Prospect rescheduled via email link",
+      wasCancelled
+        ? "Prospect reinstated via cancellation email link"
+        : "Prospect rescheduled via email link",
     );
 
     void this.fireAndForget(
@@ -242,6 +248,14 @@ export class AppointmentsService {
       status === "COMPLETED" ||
       status === "NO_SHOW"
     ) {
+      throw new ConflictException("This appointment can no longer be changed");
+    }
+  }
+
+  /** Rescheduling may revive a cancelled appointment, so only the terminal
+   *  post-meeting states are frozen. */
+  private assertReschedulable(status: AppointmentStatus): void {
+    if (status === "COMPLETED" || status === "NO_SHOW") {
       throw new ConflictException("This appointment can no longer be changed");
     }
   }

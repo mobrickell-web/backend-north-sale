@@ -8,6 +8,7 @@ import configuration from "./config/configuration";
 import { PrismaModule } from "./database/prisma.module";
 import { AppointmentsModule } from "./modules/appointments/appointments.module";
 import { AuthModule } from "./modules/auth/auth.module";
+import { ContactModule } from "./modules/contact/contact.module";
 import { HealthModule } from "./modules/health/health.module";
 import { WebhooksModule } from "./modules/webhooks/webhooks.module";
 
@@ -27,6 +28,7 @@ import { WebhooksModule } from "./modules/webhooks/webhooks.module";
     PrismaModule,
     AuthModule,
     AppointmentsModule,
+    ContactModule,
     HealthModule,
     WebhooksModule,
   ],
