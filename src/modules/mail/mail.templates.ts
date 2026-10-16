@@ -43,8 +43,8 @@ const BRAND = {
 
 export function getEmailLogoAttachment() {
   return {
-    filename: "Group 150.svg",
-    content: readFileSync(join(process.cwd(), "assets", "Group 150.svg")),
+    filename: "Group 151.svg",
+    content: readFileSync(join(process.cwd(), "assets", "Group 151.svg")),
     cid: LOGO_CID,
     contentType: "image/svg+xml" as const,
   };
