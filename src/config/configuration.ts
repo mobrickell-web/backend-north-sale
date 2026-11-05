@@ -12,15 +12,18 @@ export default () => ({
     expiresIn: process.env.JWT_EXPIRES_IN ?? "15m",
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN ?? "7d",
   },
+  google: {
+    clientId: process.env.GOOGLE_CLIENT_ID,
+  },
   initialAdmin: {
     email: process.env.INITIAL_ADMIN_EMAIL,
     password: process.env.INITIAL_ADMIN_PASSWORD,
   },
   mail: {
-    host: process.env.SMTP_HOST ?? process.env.MAIL_HOST,
-    port: parseInt(process.env.SMTP_PORT ?? process.env.MAIL_PORT ?? "587", 10),
-    user: process.env.SMTP_USER ?? process.env.MAIL_USER,
-    pass: process.env.SMTP_PASS ?? process.env.MAIL_PASS,
+    smtpHost: process.env.SMTP_HOST,
+    smtpPort: parseInt(process.env.SMTP_PORT ?? "587", 10),
+    smtpUser: process.env.SMTP_USER,
+    smtpPass: process.env.SMTP_PASS,
     from: process.env.SMTP_FROM ?? process.env.MAIL_FROM,
     notifyTo: process.env.SMTP_TO ?? process.env.MAIL_TO,
     dryRun: process.env.MAIL_DRY_RUN === "true",

@@ -3,6 +3,8 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import type { StringValue } from "ms";
+import { SuperAdminGuard } from "../../common/guards/jwt-auth.guard";
+import { MailModule } from "../mail/mail.module";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { JwtStrategy } from "./strategies/jwt.strategy";
@@ -11,6 +13,7 @@ import { LocalStrategy } from "./strategies/local.strategy";
 @Module({
   imports: [
     PassportModule,
+    MailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -24,7 +27,7 @@ import { LocalStrategy } from "./strategies/local.strategy";
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy, SuperAdminGuard],
   exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

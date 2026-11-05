@@ -45,6 +45,26 @@ export { Prisma }
  */
 export type AdminUser = Prisma.AdminUserModel
 /**
+ * Model ClientAccessRequest
+ * 
+ */
+export type ClientAccessRequest = Prisma.ClientAccessRequestModel
+/**
+ * Model OAuthIdentity
+ * 
+ */
+export type OAuthIdentity = Prisma.OAuthIdentityModel
+/**
+ * Model AuthVerificationCode
+ * 
+ */
+export type AuthVerificationCode = Prisma.AuthVerificationCodeModel
+/**
+ * Model PasswordResetToken
+ * 
+ */
+export type PasswordResetToken = Prisma.PasswordResetTokenModel
+/**
  * Model AdminRefreshToken
  * 
  */

@@ -35,6 +35,7 @@ async function main() {
         passwordHash,
         role: Role.SUPER_ADMIN,
         isActive: true,
+        emailVerifiedAt: new Date(),
       },
     });
     console.log(`Super Admin created: ${admin.email}`);

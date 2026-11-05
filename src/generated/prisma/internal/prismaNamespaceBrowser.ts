@@ -52,6 +52,10 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   AdminUser: 'AdminUser',
+  ClientAccessRequest: 'ClientAccessRequest',
+  OAuthIdentity: 'OAuthIdentity',
+  AuthVerificationCode: 'AuthVerificationCode',
+  PasswordResetToken: 'PasswordResetToken',
   AdminRefreshToken: 'AdminRefreshToken',
   Appointment: 'Appointment',
   AppointmentLog: 'AppointmentLog',
@@ -81,12 +85,66 @@ export const AdminUserScalarFieldEnum = {
   passwordHash: 'passwordHash',
   role: 'role',
   isActive: 'isActive',
+  emailVerifiedAt: 'emailVerifiedAt',
   lastLoginAt: 'lastLoginAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type AdminUserScalarFieldEnum = (typeof AdminUserScalarFieldEnum)[keyof typeof AdminUserScalarFieldEnum]
+
+
+export const ClientAccessRequestScalarFieldEnum = {
+  id: 'id',
+  accountId: 'accountId',
+  status: 'status',
+  requestedAt: 'requestedAt',
+  reviewedAt: 'reviewedAt',
+  reviewedById: 'reviewedById',
+  rejectionReason: 'rejectionReason'
+} as const
+
+export type ClientAccessRequestScalarFieldEnum = (typeof ClientAccessRequestScalarFieldEnum)[keyof typeof ClientAccessRequestScalarFieldEnum]
+
+
+export const OAuthIdentityScalarFieldEnum = {
+  id: 'id',
+  accountId: 'accountId',
+  provider: 'provider',
+  providerAccountId: 'providerAccountId',
+  providerEmail: 'providerEmail',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OAuthIdentityScalarFieldEnum = (typeof OAuthIdentityScalarFieldEnum)[keyof typeof OAuthIdentityScalarFieldEnum]
+
+
+export const AuthVerificationCodeScalarFieldEnum = {
+  id: 'id',
+  accountId: 'accountId',
+  purpose: 'purpose',
+  codeHash: 'codeHash',
+  expiresAt: 'expiresAt',
+  attemptCount: 'attemptCount',
+  maxAttempts: 'maxAttempts',
+  consumedAt: 'consumedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type AuthVerificationCodeScalarFieldEnum = (typeof AuthVerificationCodeScalarFieldEnum)[keyof typeof AuthVerificationCodeScalarFieldEnum]
+
+
+export const PasswordResetTokenScalarFieldEnum = {
+  id: 'id',
+  accountId: 'accountId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  consumedAt: 'consumedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
 
 
 export const AdminRefreshTokenScalarFieldEnum = {

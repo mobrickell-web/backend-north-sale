@@ -1,7 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../../database/prisma.service";
-import { parsePublicKey } from "../webhooks/sendgrid-signature";
 
 /** A health probe that hangs is worse than no probe — Railway would treat the
  *  container as dead and restart it mid-request. Every check is capped. */
@@ -115,20 +114,18 @@ export class HealthService {
   }
 
   private checkWebhooks(): WebhookCheck {
-    const key = this.config.get<string>("webhooks.sendgridPublicKey");
-    const parsed = parsePublicKey(key);
-
-    if (!parsed) {
+    const publicKey = this.config.get<string>("webhooks.sendgridPublicKey");
+    if (!publicKey) {
       return {
         state: "down",
         detail:
-          "SENDGRID_WEBHOOK_PUBLIC_KEY is not set — the SendGrid webhook will reject every delivery event.",
+          "SENDGRID_WEBHOOK_PUBLIC_KEY is not set — SendGrid delivery events cannot be verified.",
       };
     }
 
     return {
       state: "up",
-      detail: "SendGrid signature verification key loaded.",
+      detail: "SendGrid webhook signature verification key loaded.",
     };
   }
 
@@ -186,17 +183,19 @@ export class HealthService {
   }
 
   private checkMail(): MailCheck {
-    const host = this.config.get<string>("mail.host");
-    const user = this.config.get<string>("mail.user");
-    const pass = this.config.get<string>("mail.pass");
+    const smtpHost = this.config.get<string>("mail.smtpHost");
+    const smtpPort = this.config.get<number>("mail.smtpPort");
+    const smtpUser = this.config.get<string>("mail.smtpUser");
+    const smtpPass = this.config.get<string>("mail.smtpPass");
     const from = this.config.get<string>("mail.from");
     const notifyTo = this.config.get<string>("mail.notifyTo");
     const dryRun = this.config.get<boolean>("mail.dryRun") ?? false;
 
     const missing = [
-      ["SMTP_HOST", host],
-      ["SMTP_USER", user],
-      ["SMTP_PASS", pass],
+      ["SMTP_HOST", smtpHost],
+      ["SMTP_PORT", smtpPort],
+      ["SMTP_USER", smtpUser],
+      ["SMTP_PASS", smtpPass],
       ["SMTP_FROM", from],
       ["SMTP_TO", notifyTo],
     ]

@@ -20,6 +20,8 @@ export class LocalStrategy extends PassportStrategy(Strategy, "local") {
     email: string,
     password: string,
   ): Promise<AdminAuth> {
-    return this.authService.validateAdmin(email, password, req.ip);
+    const category = (req.body as { category?: unknown })?.category as
+      "CLIENT" | "SALES_REPRESENTATIVE" | "MASTER_ADMIN" | undefined;
+    return this.authService.validateAdmin(email, password, req.ip, category);
   }
 }

@@ -10,10 +10,36 @@
 */
 
 export const Role = {
-  SUPER_ADMIN: 'SUPER_ADMIN'
+  SUPER_ADMIN: 'SUPER_ADMIN',
+  USER: 'USER',
+  SALES_REPRESENTATIVE: 'SALES_REPRESENTATIVE'
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]
+
+
+export const OAuthProvider = {
+  GOOGLE: 'GOOGLE'
+} as const
+
+export type OAuthProvider = (typeof OAuthProvider)[keyof typeof OAuthProvider]
+
+
+export const AuthCodePurpose = {
+  SIGNUP: 'SIGNUP',
+  PASSWORD_RESET: 'PASSWORD_RESET'
+} as const
+
+export type AuthCodePurpose = (typeof AuthCodePurpose)[keyof typeof AuthCodePurpose]
+
+
+export const ClientAccessStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type ClientAccessStatus = (typeof ClientAccessStatus)[keyof typeof ClientAccessStatus]
 
 
 export const AppointmentStatus = {

@@ -9,14 +9,17 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import {
-  ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
+  ApiSecurity,
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { CurrentUser } from "../../../common/decorators/current-user.decorator";
-import { JwtAuthGuard } from "../../../common/guards/jwt-auth.guard";
+import {
+  JwtAuthGuard,
+  SuperAdminGuard,
+} from "../../../common/guards/jwt-auth.guard";
 import type { AdminAuth } from "../../../common/interfaces/admin-auth.interface";
 import { AdminAppointmentsService } from "./admin-appointments.service";
 import {
@@ -25,9 +28,9 @@ import {
 } from "./dto/admin-appointment.dto";
 
 @ApiTags("Admin Appointments")
-@ApiBearerAuth()
-@ApiUnauthorizedResponse({ description: "Missing or invalid bearer token" })
-@UseGuards(JwtAuthGuard)
+@ApiSecurity("access-cookie")
+@ApiUnauthorizedResponse({ description: "Missing or invalid auth cookie" })
+@UseGuards(JwtAuthGuard, SuperAdminGuard)
 @Controller("admin/appointments")
 export class AdminAppointmentsController {
   constructor(

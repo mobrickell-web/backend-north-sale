@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { SuperAdminGuard } from "../../common/guards/jwt-auth.guard";
 import { MailModule } from "../mail/mail.module";
 import { AdminAppointmentsController } from "./admin/admin-appointments.controller";
 import { AdminAppointmentsService } from "./admin/admin-appointments.service";
@@ -9,7 +10,12 @@ import { RemindersService } from "./reminders.service";
 @Module({
   imports: [MailModule],
   controllers: [AppointmentsController, AdminAppointmentsController],
-  providers: [AppointmentsService, AdminAppointmentsService, RemindersService],
+  providers: [
+    AppointmentsService,
+    AdminAppointmentsService,
+    RemindersService,
+    SuperAdminGuard,
+  ],
   exports: [AppointmentsService],
 })
 export class AppointmentsModule {}

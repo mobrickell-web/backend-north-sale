@@ -20,6 +20,7 @@ import {
   type ContactMessageDetails,
   type MailContent,
   buildBookingEmails,
+  buildAuthVerificationEmail,
   buildCancellationEmails,
   buildContactEmail,
   buildReminderEmails,
@@ -30,10 +31,10 @@ import {
 const CONTACT_INBOX = "contact@northpointsalesgroup.com";
 
 type MailConfig = {
-  host?: string;
-  port: number;
-  user?: string;
-  pass?: string;
+  smtpHost?: string;
+  smtpPort?: number;
+  smtpUser?: string;
+  smtpPass?: string;
   from?: string;
   notifyTo?: string;
   dryRun: boolean;
@@ -51,23 +52,25 @@ export type EmailKind =
   | "CANCELLATION_CONFIRMATION"
   | "CANCELLATION_ADMIN_NOTIFICATION"
   | "REMINDER_24H"
-  | "REMINDER_1H";
+  | "REMINDER_1H"
+  | "AUTH_SIGNUP_VERIFICATION"
+  | "AUTH_PASSWORD_RESET";
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private transporter?: Transporter;
   private readonly cfg: MailConfig;
+  private readonly transporter?: Transporter;
 
   constructor(
     config: ConfigService,
     private readonly prisma: PrismaService,
   ) {
     this.cfg = {
-      host: config.get<string>("mail.host"),
-      port: config.get<number>("mail.port") ?? 587,
-      user: config.get<string>("mail.user"),
-      pass: config.get<string>("mail.pass"),
+      smtpHost: config.get<string>("mail.smtpHost"),
+      smtpPort: config.get<number>("mail.smtpPort"),
+      smtpUser: config.get<string>("mail.smtpUser"),
+      smtpPass: config.get<string>("mail.smtpPass"),
       from: config.get<string>("mail.from"),
       notifyTo: config.get<string>("mail.notifyTo"),
       dryRun: config.get<boolean>("mail.dryRun") ?? false,
@@ -77,32 +80,25 @@ export class MailService {
         "http://localhost:3000",
       apiUrl: config.get<string>("app.url") ?? "http://localhost:3001",
     };
-  }
 
-  private getTransporter(): Transporter | null {
-    const { host, port, user, pass } = this.cfg;
-    if (!host || !user || !pass) {
-      this.logger.warn(
-        "SMTP is not configured (SMTP_HOST/SMTP_USER/SMTP_PASS) — email skipped",
-      );
-      return null;
-    }
-    if (!this.transporter) {
+    if (
+      this.cfg.smtpHost &&
+      this.cfg.smtpPort &&
+      this.cfg.smtpUser &&
+      this.cfg.smtpPass
+    ) {
       this.transporter = nodemailer.createTransport({
-        host,
-        port,
-        secure: port === 465,
-        auth: { user, pass },
+        host: this.cfg.smtpHost,
+        port: this.cfg.smtpPort,
+        secure: this.cfg.smtpPort === 465,
+        connectionTimeout: 10_000,
+        greetingTimeout: 10_000,
+        socketTimeout: 30_000,
+        auth: {
+          user: this.cfg.smtpUser,
+          pass: this.cfg.smtpPass,
+        },
       });
-    }
-    return this.transporter;
-  }
-
-  private logoAttachment(): object[] {
-    try {
-      return [getEmailLogoAttachment()];
-    } catch {
-      return [];
     }
   }
 
@@ -114,9 +110,7 @@ export class MailService {
   ): Promise<boolean> {
     const { from, dryRun } = this.cfg;
     if (!from || !to) {
-      this.logger.warn(
-        `Email skipped — missing from/to (from=${from}, to=${to})`,
-      );
+      this.logger.warn("Email skipped — missing from/to configuration");
       return false;
     }
 
@@ -125,29 +119,28 @@ export class MailService {
       return true;
     }
 
-    const transporter = this.getTransporter();
-    if (!transporter) return false;
+    if (!this.transporter) {
+      this.logger.warn(
+        "SMTP is not fully configured — email could not be sent",
+      );
+      return false;
+    }
 
     try {
-      const info = await transporter.sendMail({
-        from: `"${BRAND_FROM}" <${from}>`,
+      const info = await this.transporter.sendMail({
+        from: { name: BRAND_FROM, address: from },
         to,
         ...(replyTo ? { replyTo } : {}),
         subject: content.subject,
         text: content.text,
         html: content.html,
-        attachments: this.logoAttachment(),
+        attachments: [getEmailLogoAttachment()],
       });
 
-      // sendMail() resolves the moment the provider accepts the message, so
-      // this is "accepted", never "delivered". messageId is the only handle a
-      // later delivery webhook can match on, so it is stored now — a bounce
-      // arriving in ten minutes has nothing to join against otherwise.
       await this.recordDelivery(to, content, context, info);
-
       this.logger.log(
-        `Email sent → ${to} (${content.subject})` +
-          (normalizeMessageId(info?.messageId) ? "" : " [no messageId]"),
+        `Email accepted by SMTP → ${to} (${content.subject})` +
+          (normalizeMessageId(info.messageId) ? "" : " [no messageId]"),
       );
       return true;
     } catch (error) {
@@ -158,16 +151,10 @@ export class MailService {
     }
   }
 
-  /**
-   * Best-effort persistence: a tracking-write failure must never turn a
-   * delivered email into a retry, because the caller would then send it twice.
-   */
   private async recordDelivery(
     to: string,
     content: MailContent,
     context: { appointmentId?: string; kind: EmailKind } | undefined,
-    // nodemailer types SentMessageInfo as `any`, so only the one field we rely
-    // on is described here.
     info: { messageId?: unknown } | undefined,
   ): Promise<void> {
     if (!context) return;
@@ -260,6 +247,25 @@ export class MailService {
   async sendContactMessage(details: ContactMessageDetails): Promise<boolean> {
     const to = this.cfg.notifyTo ?? CONTACT_INBOX;
     return this.send(to, buildContactEmail(details), undefined, details.email);
+  }
+
+  async sendAuthVerificationCode(
+    email: string,
+    code: string,
+    purpose: "SIGNUP" | "PASSWORD_RESET",
+  ): Promise<boolean> {
+    if (this.cfg.dryRun) {
+      this.logger.warn(
+        `Auth verification email was not sent because MAIL_DRY_RUN is enabled (${purpose})`,
+      );
+      return false;
+    }
+    return this.send(email, buildAuthVerificationEmail(code, purpose), {
+      kind:
+        purpose === "SIGNUP"
+          ? "AUTH_SIGNUP_VERIFICATION"
+          : "AUTH_PASSWORD_RESET",
+    });
   }
 
   async sendReminderNotifications(

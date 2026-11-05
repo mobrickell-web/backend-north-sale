@@ -403,10 +403,6 @@ export type AdminRefreshTokenUncheckedUpdateManyWithoutAdminNestedInput = {
   deleteMany?: Prisma.AdminRefreshTokenScalarWhereInput | Prisma.AdminRefreshTokenScalarWhereInput[]
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type AdminRefreshTokenCreateWithoutAdminInput = {
   id?: string
   tokenHash: string

@@ -9,6 +9,10 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/AdminUser'
+export type * from './models/ClientAccessRequest'
+export type * from './models/OAuthIdentity'
+export type * from './models/AuthVerificationCode'
+export type * from './models/PasswordResetToken'
 export type * from './models/AdminRefreshToken'
 export type * from './models/Appointment'
 export type * from './models/AppointmentLog'

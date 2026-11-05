@@ -31,6 +31,7 @@ export type AdminUserMinAggregateOutputType = {
   passwordHash: string | null
   role: $Enums.Role | null
   isActive: boolean | null
+  emailVerifiedAt: Date | null
   lastLoginAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -43,6 +44,7 @@ export type AdminUserMaxAggregateOutputType = {
   passwordHash: string | null
   role: $Enums.Role | null
   isActive: boolean | null
+  emailVerifiedAt: Date | null
   lastLoginAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -55,6 +57,7 @@ export type AdminUserCountAggregateOutputType = {
   passwordHash: number
   role: number
   isActive: number
+  emailVerifiedAt: number
   lastLoginAt: number
   createdAt: number
   updatedAt: number
@@ -69,6 +72,7 @@ export type AdminUserMinAggregateInputType = {
   passwordHash?: true
   role?: true
   isActive?: true
+  emailVerifiedAt?: true
   lastLoginAt?: true
   createdAt?: true
   updatedAt?: true
@@ -81,6 +85,7 @@ export type AdminUserMaxAggregateInputType = {
   passwordHash?: true
   role?: true
   isActive?: true
+  emailVerifiedAt?: true
   lastLoginAt?: true
   createdAt?: true
   updatedAt?: true
@@ -93,6 +98,7 @@ export type AdminUserCountAggregateInputType = {
   passwordHash?: true
   role?: true
   isActive?: true
+  emailVerifiedAt?: true
   lastLoginAt?: true
   createdAt?: true
   updatedAt?: true
@@ -175,9 +181,10 @@ export type AdminUserGroupByOutputType = {
   id: string
   name: string
   email: string
-  passwordHash: string
+  passwordHash: string | null
   role: $Enums.Role
   isActive: boolean
+  emailVerifiedAt: Date | null
   lastLoginAt: Date | null
   createdAt: Date
   updatedAt: Date
@@ -208,28 +215,40 @@ export type AdminUserWhereInput = {
   id?: Prisma.UuidFilter<"AdminUser"> | string
   name?: Prisma.StringFilter<"AdminUser"> | string
   email?: Prisma.StringFilter<"AdminUser"> | string
-  passwordHash?: Prisma.StringFilter<"AdminUser"> | string
+  passwordHash?: Prisma.StringNullableFilter<"AdminUser"> | string | null
   role?: Prisma.EnumRoleFilter<"AdminUser"> | $Enums.Role
   isActive?: Prisma.BoolFilter<"AdminUser"> | boolean
+  emailVerifiedAt?: Prisma.DateTimeNullableFilter<"AdminUser"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableFilter<"AdminUser"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AdminUser"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AdminUser"> | Date | string
   performedLogs?: Prisma.AppointmentLogListRelationFilter
   refreshTokens?: Prisma.AdminRefreshTokenListRelationFilter
+  oauthIdentities?: Prisma.OAuthIdentityListRelationFilter
+  verificationCodes?: Prisma.AuthVerificationCodeListRelationFilter
+  passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
+  clientAccessRequest?: Prisma.XOR<Prisma.ClientAccessRequestNullableScalarRelationFilter, Prisma.ClientAccessRequestWhereInput> | null
+  reviewedAccessRequests?: Prisma.ClientAccessRequestListRelationFilter
 }
 
 export type AdminUserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  passwordHash?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   performedLogs?: Prisma.AppointmentLogOrderByRelationAggregateInput
   refreshTokens?: Prisma.AdminRefreshTokenOrderByRelationAggregateInput
+  oauthIdentities?: Prisma.OAuthIdentityOrderByRelationAggregateInput
+  verificationCodes?: Prisma.AuthVerificationCodeOrderByRelationAggregateInput
+  passwordResetTokens?: Prisma.PasswordResetTokenOrderByRelationAggregateInput
+  clientAccessRequest?: Prisma.ClientAccessRequestOrderByWithRelationInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestOrderByRelationAggregateInput
 }
 
 export type AdminUserWhereUniqueInput = Prisma.AtLeast<{
@@ -239,23 +258,30 @@ export type AdminUserWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.AdminUserWhereInput[]
   NOT?: Prisma.AdminUserWhereInput | Prisma.AdminUserWhereInput[]
   name?: Prisma.StringFilter<"AdminUser"> | string
-  passwordHash?: Prisma.StringFilter<"AdminUser"> | string
+  passwordHash?: Prisma.StringNullableFilter<"AdminUser"> | string | null
   role?: Prisma.EnumRoleFilter<"AdminUser"> | $Enums.Role
   isActive?: Prisma.BoolFilter<"AdminUser"> | boolean
+  emailVerifiedAt?: Prisma.DateTimeNullableFilter<"AdminUser"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableFilter<"AdminUser"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AdminUser"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AdminUser"> | Date | string
   performedLogs?: Prisma.AppointmentLogListRelationFilter
   refreshTokens?: Prisma.AdminRefreshTokenListRelationFilter
+  oauthIdentities?: Prisma.OAuthIdentityListRelationFilter
+  verificationCodes?: Prisma.AuthVerificationCodeListRelationFilter
+  passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
+  clientAccessRequest?: Prisma.XOR<Prisma.ClientAccessRequestNullableScalarRelationFilter, Prisma.ClientAccessRequestWhereInput> | null
+  reviewedAccessRequests?: Prisma.ClientAccessRequestListRelationFilter
 }, "id" | "email">
 
 export type AdminUserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  passwordHash?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -271,9 +297,10 @@ export type AdminUserScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"AdminUser"> | string
   name?: Prisma.StringWithAggregatesFilter<"AdminUser"> | string
   email?: Prisma.StringWithAggregatesFilter<"AdminUser"> | string
-  passwordHash?: Prisma.StringWithAggregatesFilter<"AdminUser"> | string
+  passwordHash?: Prisma.StringNullableWithAggregatesFilter<"AdminUser"> | string | null
   role?: Prisma.EnumRoleWithAggregatesFilter<"AdminUser"> | $Enums.Role
   isActive?: Prisma.BoolWithAggregatesFilter<"AdminUser"> | boolean
+  emailVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AdminUser"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AdminUser"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AdminUser"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AdminUser"> | Date | string
@@ -283,65 +310,90 @@ export type AdminUserCreateInput = {
   id?: string
   name: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
   role?: $Enums.Role
   isActive?: boolean
+  emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   performedLogs?: Prisma.AppointmentLogCreateNestedManyWithoutAdminUserInput
   refreshTokens?: Prisma.AdminRefreshTokenCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
 }
 
 export type AdminUserUncheckedCreateInput = {
   id?: string
   name: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
   role?: $Enums.Role
   isActive?: boolean
+  emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   performedLogs?: Prisma.AppointmentLogUncheckedCreateNestedManyWithoutAdminUserInput
   refreshTokens?: Prisma.AdminRefreshTokenUncheckedCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
 }
 
 export type AdminUserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   performedLogs?: Prisma.AppointmentLogUpdateManyWithoutAdminUserNestedInput
   refreshTokens?: Prisma.AdminRefreshTokenUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
 }
 
 export type AdminUserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   performedLogs?: Prisma.AppointmentLogUncheckedUpdateManyWithoutAdminUserNestedInput
   refreshTokens?: Prisma.AdminRefreshTokenUncheckedUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
 }
 
 export type AdminUserCreateManyInput = {
   id?: string
   name: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
   role?: $Enums.Role
   isActive?: boolean
+  emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -351,9 +403,10 @@ export type AdminUserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -363,9 +416,10 @@ export type AdminUserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -378,6 +432,7 @@ export type AdminUserCountOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   role?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -390,6 +445,7 @@ export type AdminUserMaxOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   role?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -402,6 +458,7 @@ export type AdminUserMinOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   role?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -421,6 +478,10 @@ export type StringFieldUpdateOperationsInput = {
   set?: string
 }
 
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
 export type EnumRoleFieldUpdateOperationsInput = {
   set?: $Enums.Role
 }
@@ -435,6 +496,78 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type AdminUserCreateNestedOneWithoutClientAccessRequestInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutClientAccessRequestInput, Prisma.AdminUserUncheckedCreateWithoutClientAccessRequestInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutClientAccessRequestInput
+  connect?: Prisma.AdminUserWhereUniqueInput
+}
+
+export type AdminUserCreateNestedOneWithoutReviewedAccessRequestsInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutReviewedAccessRequestsInput, Prisma.AdminUserUncheckedCreateWithoutReviewedAccessRequestsInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutReviewedAccessRequestsInput
+  connect?: Prisma.AdminUserWhereUniqueInput
+}
+
+export type AdminUserUpdateOneRequiredWithoutClientAccessRequestNestedInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutClientAccessRequestInput, Prisma.AdminUserUncheckedCreateWithoutClientAccessRequestInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutClientAccessRequestInput
+  upsert?: Prisma.AdminUserUpsertWithoutClientAccessRequestInput
+  connect?: Prisma.AdminUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AdminUserUpdateToOneWithWhereWithoutClientAccessRequestInput, Prisma.AdminUserUpdateWithoutClientAccessRequestInput>, Prisma.AdminUserUncheckedUpdateWithoutClientAccessRequestInput>
+}
+
+export type AdminUserUpdateOneWithoutReviewedAccessRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutReviewedAccessRequestsInput, Prisma.AdminUserUncheckedCreateWithoutReviewedAccessRequestsInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutReviewedAccessRequestsInput
+  upsert?: Prisma.AdminUserUpsertWithoutReviewedAccessRequestsInput
+  disconnect?: Prisma.AdminUserWhereInput | boolean
+  delete?: Prisma.AdminUserWhereInput | boolean
+  connect?: Prisma.AdminUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AdminUserUpdateToOneWithWhereWithoutReviewedAccessRequestsInput, Prisma.AdminUserUpdateWithoutReviewedAccessRequestsInput>, Prisma.AdminUserUncheckedUpdateWithoutReviewedAccessRequestsInput>
+}
+
+export type AdminUserCreateNestedOneWithoutOauthIdentitiesInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutOauthIdentitiesInput, Prisma.AdminUserUncheckedCreateWithoutOauthIdentitiesInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutOauthIdentitiesInput
+  connect?: Prisma.AdminUserWhereUniqueInput
+}
+
+export type AdminUserUpdateOneRequiredWithoutOauthIdentitiesNestedInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutOauthIdentitiesInput, Prisma.AdminUserUncheckedCreateWithoutOauthIdentitiesInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutOauthIdentitiesInput
+  upsert?: Prisma.AdminUserUpsertWithoutOauthIdentitiesInput
+  connect?: Prisma.AdminUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AdminUserUpdateToOneWithWhereWithoutOauthIdentitiesInput, Prisma.AdminUserUpdateWithoutOauthIdentitiesInput>, Prisma.AdminUserUncheckedUpdateWithoutOauthIdentitiesInput>
+}
+
+export type AdminUserCreateNestedOneWithoutVerificationCodesInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutVerificationCodesInput, Prisma.AdminUserUncheckedCreateWithoutVerificationCodesInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutVerificationCodesInput
+  connect?: Prisma.AdminUserWhereUniqueInput
+}
+
+export type AdminUserUpdateOneRequiredWithoutVerificationCodesNestedInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutVerificationCodesInput, Prisma.AdminUserUncheckedCreateWithoutVerificationCodesInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutVerificationCodesInput
+  upsert?: Prisma.AdminUserUpsertWithoutVerificationCodesInput
+  connect?: Prisma.AdminUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AdminUserUpdateToOneWithWhereWithoutVerificationCodesInput, Prisma.AdminUserUpdateWithoutVerificationCodesInput>, Prisma.AdminUserUncheckedUpdateWithoutVerificationCodesInput>
+}
+
+export type AdminUserCreateNestedOneWithoutPasswordResetTokensInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutPasswordResetTokensInput, Prisma.AdminUserUncheckedCreateWithoutPasswordResetTokensInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutPasswordResetTokensInput
+  connect?: Prisma.AdminUserWhereUniqueInput
+}
+
+export type AdminUserUpdateOneRequiredWithoutPasswordResetTokensNestedInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutPasswordResetTokensInput, Prisma.AdminUserUncheckedCreateWithoutPasswordResetTokensInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutPasswordResetTokensInput
+  upsert?: Prisma.AdminUserUpsertWithoutPasswordResetTokensInput
+  connect?: Prisma.AdminUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AdminUserUpdateToOneWithWhereWithoutPasswordResetTokensInput, Prisma.AdminUserUpdateWithoutPasswordResetTokensInput>, Prisma.AdminUserUncheckedUpdateWithoutPasswordResetTokensInput>
 }
 
 export type AdminUserCreateNestedOneWithoutRefreshTokensInput = {
@@ -467,30 +600,502 @@ export type AdminUserUpdateOneWithoutPerformedLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AdminUserUpdateToOneWithWhereWithoutPerformedLogsInput, Prisma.AdminUserUpdateWithoutPerformedLogsInput>, Prisma.AdminUserUncheckedUpdateWithoutPerformedLogsInput>
 }
 
-export type AdminUserCreateWithoutRefreshTokensInput = {
+export type AdminUserCreateWithoutClientAccessRequestInput = {
   id?: string
   name: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
   role?: $Enums.Role
   isActive?: boolean
+  emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   performedLogs?: Prisma.AppointmentLogCreateNestedManyWithoutAdminUserInput
+  refreshTokens?: Prisma.AdminRefreshTokenCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
+}
+
+export type AdminUserUncheckedCreateWithoutClientAccessRequestInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  role?: $Enums.Role
+  isActive?: boolean
+  emailVerifiedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  performedLogs?: Prisma.AppointmentLogUncheckedCreateNestedManyWithoutAdminUserInput
+  refreshTokens?: Prisma.AdminRefreshTokenUncheckedCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
+}
+
+export type AdminUserCreateOrConnectWithoutClientAccessRequestInput = {
+  where: Prisma.AdminUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutClientAccessRequestInput, Prisma.AdminUserUncheckedCreateWithoutClientAccessRequestInput>
+}
+
+export type AdminUserCreateWithoutReviewedAccessRequestsInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  role?: $Enums.Role
+  isActive?: boolean
+  emailVerifiedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  performedLogs?: Prisma.AppointmentLogCreateNestedManyWithoutAdminUserInput
+  refreshTokens?: Prisma.AdminRefreshTokenCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
+}
+
+export type AdminUserUncheckedCreateWithoutReviewedAccessRequestsInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  role?: $Enums.Role
+  isActive?: boolean
+  emailVerifiedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  performedLogs?: Prisma.AppointmentLogUncheckedCreateNestedManyWithoutAdminUserInput
+  refreshTokens?: Prisma.AdminRefreshTokenUncheckedCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
+}
+
+export type AdminUserCreateOrConnectWithoutReviewedAccessRequestsInput = {
+  where: Prisma.AdminUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutReviewedAccessRequestsInput, Prisma.AdminUserUncheckedCreateWithoutReviewedAccessRequestsInput>
+}
+
+export type AdminUserUpsertWithoutClientAccessRequestInput = {
+  update: Prisma.XOR<Prisma.AdminUserUpdateWithoutClientAccessRequestInput, Prisma.AdminUserUncheckedUpdateWithoutClientAccessRequestInput>
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutClientAccessRequestInput, Prisma.AdminUserUncheckedCreateWithoutClientAccessRequestInput>
+  where?: Prisma.AdminUserWhereInput
+}
+
+export type AdminUserUpdateToOneWithWhereWithoutClientAccessRequestInput = {
+  where?: Prisma.AdminUserWhereInput
+  data: Prisma.XOR<Prisma.AdminUserUpdateWithoutClientAccessRequestInput, Prisma.AdminUserUncheckedUpdateWithoutClientAccessRequestInput>
+}
+
+export type AdminUserUpdateWithoutClientAccessRequestInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  performedLogs?: Prisma.AppointmentLogUpdateManyWithoutAdminUserNestedInput
+  refreshTokens?: Prisma.AdminRefreshTokenUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
+}
+
+export type AdminUserUncheckedUpdateWithoutClientAccessRequestInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  performedLogs?: Prisma.AppointmentLogUncheckedUpdateManyWithoutAdminUserNestedInput
+  refreshTokens?: Prisma.AdminRefreshTokenUncheckedUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+}
+
+export type AdminUserUpsertWithoutReviewedAccessRequestsInput = {
+  update: Prisma.XOR<Prisma.AdminUserUpdateWithoutReviewedAccessRequestsInput, Prisma.AdminUserUncheckedUpdateWithoutReviewedAccessRequestsInput>
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutReviewedAccessRequestsInput, Prisma.AdminUserUncheckedCreateWithoutReviewedAccessRequestsInput>
+  where?: Prisma.AdminUserWhereInput
+}
+
+export type AdminUserUpdateToOneWithWhereWithoutReviewedAccessRequestsInput = {
+  where?: Prisma.AdminUserWhereInput
+  data: Prisma.XOR<Prisma.AdminUserUpdateWithoutReviewedAccessRequestsInput, Prisma.AdminUserUncheckedUpdateWithoutReviewedAccessRequestsInput>
+}
+
+export type AdminUserUpdateWithoutReviewedAccessRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  performedLogs?: Prisma.AppointmentLogUpdateManyWithoutAdminUserNestedInput
+  refreshTokens?: Prisma.AdminRefreshTokenUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
+}
+
+export type AdminUserUncheckedUpdateWithoutReviewedAccessRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  performedLogs?: Prisma.AppointmentLogUncheckedUpdateManyWithoutAdminUserNestedInput
+  refreshTokens?: Prisma.AdminRefreshTokenUncheckedUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
+}
+
+export type AdminUserCreateWithoutOauthIdentitiesInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  role?: $Enums.Role
+  isActive?: boolean
+  emailVerifiedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  performedLogs?: Prisma.AppointmentLogCreateNestedManyWithoutAdminUserInput
+  refreshTokens?: Prisma.AdminRefreshTokenCreateNestedManyWithoutAdminInput
+  verificationCodes?: Prisma.AuthVerificationCodeCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
+}
+
+export type AdminUserUncheckedCreateWithoutOauthIdentitiesInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  role?: $Enums.Role
+  isActive?: boolean
+  emailVerifiedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  performedLogs?: Prisma.AppointmentLogUncheckedCreateNestedManyWithoutAdminUserInput
+  refreshTokens?: Prisma.AdminRefreshTokenUncheckedCreateNestedManyWithoutAdminInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
+}
+
+export type AdminUserCreateOrConnectWithoutOauthIdentitiesInput = {
+  where: Prisma.AdminUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutOauthIdentitiesInput, Prisma.AdminUserUncheckedCreateWithoutOauthIdentitiesInput>
+}
+
+export type AdminUserUpsertWithoutOauthIdentitiesInput = {
+  update: Prisma.XOR<Prisma.AdminUserUpdateWithoutOauthIdentitiesInput, Prisma.AdminUserUncheckedUpdateWithoutOauthIdentitiesInput>
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutOauthIdentitiesInput, Prisma.AdminUserUncheckedCreateWithoutOauthIdentitiesInput>
+  where?: Prisma.AdminUserWhereInput
+}
+
+export type AdminUserUpdateToOneWithWhereWithoutOauthIdentitiesInput = {
+  where?: Prisma.AdminUserWhereInput
+  data: Prisma.XOR<Prisma.AdminUserUpdateWithoutOauthIdentitiesInput, Prisma.AdminUserUncheckedUpdateWithoutOauthIdentitiesInput>
+}
+
+export type AdminUserUpdateWithoutOauthIdentitiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  performedLogs?: Prisma.AppointmentLogUpdateManyWithoutAdminUserNestedInput
+  refreshTokens?: Prisma.AdminRefreshTokenUpdateManyWithoutAdminNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
+}
+
+export type AdminUserUncheckedUpdateWithoutOauthIdentitiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  performedLogs?: Prisma.AppointmentLogUncheckedUpdateManyWithoutAdminUserNestedInput
+  refreshTokens?: Prisma.AdminRefreshTokenUncheckedUpdateManyWithoutAdminNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+}
+
+export type AdminUserCreateWithoutVerificationCodesInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  role?: $Enums.Role
+  isActive?: boolean
+  emailVerifiedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  performedLogs?: Prisma.AppointmentLogCreateNestedManyWithoutAdminUserInput
+  refreshTokens?: Prisma.AdminRefreshTokenCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
+}
+
+export type AdminUserUncheckedCreateWithoutVerificationCodesInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  role?: $Enums.Role
+  isActive?: boolean
+  emailVerifiedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  performedLogs?: Prisma.AppointmentLogUncheckedCreateNestedManyWithoutAdminUserInput
+  refreshTokens?: Prisma.AdminRefreshTokenUncheckedCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
+}
+
+export type AdminUserCreateOrConnectWithoutVerificationCodesInput = {
+  where: Prisma.AdminUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutVerificationCodesInput, Prisma.AdminUserUncheckedCreateWithoutVerificationCodesInput>
+}
+
+export type AdminUserUpsertWithoutVerificationCodesInput = {
+  update: Prisma.XOR<Prisma.AdminUserUpdateWithoutVerificationCodesInput, Prisma.AdminUserUncheckedUpdateWithoutVerificationCodesInput>
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutVerificationCodesInput, Prisma.AdminUserUncheckedCreateWithoutVerificationCodesInput>
+  where?: Prisma.AdminUserWhereInput
+}
+
+export type AdminUserUpdateToOneWithWhereWithoutVerificationCodesInput = {
+  where?: Prisma.AdminUserWhereInput
+  data: Prisma.XOR<Prisma.AdminUserUpdateWithoutVerificationCodesInput, Prisma.AdminUserUncheckedUpdateWithoutVerificationCodesInput>
+}
+
+export type AdminUserUpdateWithoutVerificationCodesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  performedLogs?: Prisma.AppointmentLogUpdateManyWithoutAdminUserNestedInput
+  refreshTokens?: Prisma.AdminRefreshTokenUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
+}
+
+export type AdminUserUncheckedUpdateWithoutVerificationCodesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  performedLogs?: Prisma.AppointmentLogUncheckedUpdateManyWithoutAdminUserNestedInput
+  refreshTokens?: Prisma.AdminRefreshTokenUncheckedUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+}
+
+export type AdminUserCreateWithoutPasswordResetTokensInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  role?: $Enums.Role
+  isActive?: boolean
+  emailVerifiedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  performedLogs?: Prisma.AppointmentLogCreateNestedManyWithoutAdminUserInput
+  refreshTokens?: Prisma.AdminRefreshTokenCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
+}
+
+export type AdminUserUncheckedCreateWithoutPasswordResetTokensInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  role?: $Enums.Role
+  isActive?: boolean
+  emailVerifiedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  performedLogs?: Prisma.AppointmentLogUncheckedCreateNestedManyWithoutAdminUserInput
+  refreshTokens?: Prisma.AdminRefreshTokenUncheckedCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
+}
+
+export type AdminUserCreateOrConnectWithoutPasswordResetTokensInput = {
+  where: Prisma.AdminUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutPasswordResetTokensInput, Prisma.AdminUserUncheckedCreateWithoutPasswordResetTokensInput>
+}
+
+export type AdminUserUpsertWithoutPasswordResetTokensInput = {
+  update: Prisma.XOR<Prisma.AdminUserUpdateWithoutPasswordResetTokensInput, Prisma.AdminUserUncheckedUpdateWithoutPasswordResetTokensInput>
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutPasswordResetTokensInput, Prisma.AdminUserUncheckedCreateWithoutPasswordResetTokensInput>
+  where?: Prisma.AdminUserWhereInput
+}
+
+export type AdminUserUpdateToOneWithWhereWithoutPasswordResetTokensInput = {
+  where?: Prisma.AdminUserWhereInput
+  data: Prisma.XOR<Prisma.AdminUserUpdateWithoutPasswordResetTokensInput, Prisma.AdminUserUncheckedUpdateWithoutPasswordResetTokensInput>
+}
+
+export type AdminUserUpdateWithoutPasswordResetTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  performedLogs?: Prisma.AppointmentLogUpdateManyWithoutAdminUserNestedInput
+  refreshTokens?: Prisma.AdminRefreshTokenUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
+}
+
+export type AdminUserUncheckedUpdateWithoutPasswordResetTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  performedLogs?: Prisma.AppointmentLogUncheckedUpdateManyWithoutAdminUserNestedInput
+  refreshTokens?: Prisma.AdminRefreshTokenUncheckedUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+}
+
+export type AdminUserCreateWithoutRefreshTokensInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  role?: $Enums.Role
+  isActive?: boolean
+  emailVerifiedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  performedLogs?: Prisma.AppointmentLogCreateNestedManyWithoutAdminUserInput
+  oauthIdentities?: Prisma.OAuthIdentityCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
 }
 
 export type AdminUserUncheckedCreateWithoutRefreshTokensInput = {
   id?: string
   name: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
   role?: $Enums.Role
   isActive?: boolean
+  emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   performedLogs?: Prisma.AppointmentLogUncheckedCreateNestedManyWithoutAdminUserInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
 }
 
 export type AdminUserCreateOrConnectWithoutRefreshTokensInput = {
@@ -513,52 +1118,76 @@ export type AdminUserUpdateWithoutRefreshTokensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   performedLogs?: Prisma.AppointmentLogUpdateManyWithoutAdminUserNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
 }
 
 export type AdminUserUncheckedUpdateWithoutRefreshTokensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   performedLogs?: Prisma.AppointmentLogUncheckedUpdateManyWithoutAdminUserNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
 }
 
 export type AdminUserCreateWithoutPerformedLogsInput = {
   id?: string
   name: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
   role?: $Enums.Role
   isActive?: boolean
+  emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   refreshTokens?: Prisma.AdminRefreshTokenCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
 }
 
 export type AdminUserUncheckedCreateWithoutPerformedLogsInput = {
   id?: string
   name: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
   role?: $Enums.Role
   isActive?: boolean
+  emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   refreshTokens?: Prisma.AdminRefreshTokenUncheckedCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
 }
 
 export type AdminUserCreateOrConnectWithoutPerformedLogsInput = {
@@ -581,26 +1210,38 @@ export type AdminUserUpdateWithoutPerformedLogsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshTokens?: Prisma.AdminRefreshTokenUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
 }
 
 export type AdminUserUncheckedUpdateWithoutPerformedLogsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshTokens?: Prisma.AdminRefreshTokenUncheckedUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
 }
 
 
@@ -611,11 +1252,19 @@ export type AdminUserUncheckedUpdateWithoutPerformedLogsInput = {
 export type AdminUserCountOutputType = {
   performedLogs: number
   refreshTokens: number
+  oauthIdentities: number
+  verificationCodes: number
+  passwordResetTokens: number
+  reviewedAccessRequests: number
 }
 
 export type AdminUserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   performedLogs?: boolean | AdminUserCountOutputTypeCountPerformedLogsArgs
   refreshTokens?: boolean | AdminUserCountOutputTypeCountRefreshTokensArgs
+  oauthIdentities?: boolean | AdminUserCountOutputTypeCountOauthIdentitiesArgs
+  verificationCodes?: boolean | AdminUserCountOutputTypeCountVerificationCodesArgs
+  passwordResetTokens?: boolean | AdminUserCountOutputTypeCountPasswordResetTokensArgs
+  reviewedAccessRequests?: boolean | AdminUserCountOutputTypeCountReviewedAccessRequestsArgs
 }
 
 /**
@@ -642,6 +1291,34 @@ export type AdminUserCountOutputTypeCountRefreshTokensArgs<ExtArgs extends runti
   where?: Prisma.AdminRefreshTokenWhereInput
 }
 
+/**
+ * AdminUserCountOutputType without action
+ */
+export type AdminUserCountOutputTypeCountOauthIdentitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OAuthIdentityWhereInput
+}
+
+/**
+ * AdminUserCountOutputType without action
+ */
+export type AdminUserCountOutputTypeCountVerificationCodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AuthVerificationCodeWhereInput
+}
+
+/**
+ * AdminUserCountOutputType without action
+ */
+export type AdminUserCountOutputTypeCountPasswordResetTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PasswordResetTokenWhereInput
+}
+
+/**
+ * AdminUserCountOutputType without action
+ */
+export type AdminUserCountOutputTypeCountReviewedAccessRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ClientAccessRequestWhereInput
+}
+
 
 export type AdminUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -650,11 +1327,17 @@ export type AdminUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   passwordHash?: boolean
   role?: boolean
   isActive?: boolean
+  emailVerifiedAt?: boolean
   lastLoginAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   performedLogs?: boolean | Prisma.AdminUser$performedLogsArgs<ExtArgs>
   refreshTokens?: boolean | Prisma.AdminUser$refreshTokensArgs<ExtArgs>
+  oauthIdentities?: boolean | Prisma.AdminUser$oauthIdentitiesArgs<ExtArgs>
+  verificationCodes?: boolean | Prisma.AdminUser$verificationCodesArgs<ExtArgs>
+  passwordResetTokens?: boolean | Prisma.AdminUser$passwordResetTokensArgs<ExtArgs>
+  clientAccessRequest?: boolean | Prisma.AdminUser$clientAccessRequestArgs<ExtArgs>
+  reviewedAccessRequests?: boolean | Prisma.AdminUser$reviewedAccessRequestsArgs<ExtArgs>
   _count?: boolean | Prisma.AdminUserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["adminUser"]>
 
@@ -665,6 +1348,7 @@ export type AdminUserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   passwordHash?: boolean
   role?: boolean
   isActive?: boolean
+  emailVerifiedAt?: boolean
   lastLoginAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -677,6 +1361,7 @@ export type AdminUserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   passwordHash?: boolean
   role?: boolean
   isActive?: boolean
+  emailVerifiedAt?: boolean
   lastLoginAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -689,15 +1374,21 @@ export type AdminUserSelectScalar = {
   passwordHash?: boolean
   role?: boolean
   isActive?: boolean
+  emailVerifiedAt?: boolean
   lastLoginAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AdminUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "role" | "isActive" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["adminUser"]>
+export type AdminUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "role" | "isActive" | "emailVerifiedAt" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["adminUser"]>
 export type AdminUserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   performedLogs?: boolean | Prisma.AdminUser$performedLogsArgs<ExtArgs>
   refreshTokens?: boolean | Prisma.AdminUser$refreshTokensArgs<ExtArgs>
+  oauthIdentities?: boolean | Prisma.AdminUser$oauthIdentitiesArgs<ExtArgs>
+  verificationCodes?: boolean | Prisma.AdminUser$verificationCodesArgs<ExtArgs>
+  passwordResetTokens?: boolean | Prisma.AdminUser$passwordResetTokensArgs<ExtArgs>
+  clientAccessRequest?: boolean | Prisma.AdminUser$clientAccessRequestArgs<ExtArgs>
+  reviewedAccessRequests?: boolean | Prisma.AdminUser$reviewedAccessRequestsArgs<ExtArgs>
   _count?: boolean | Prisma.AdminUserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AdminUserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -708,14 +1399,20 @@ export type $AdminUserPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   objects: {
     performedLogs: Prisma.$AppointmentLogPayload<ExtArgs>[]
     refreshTokens: Prisma.$AdminRefreshTokenPayload<ExtArgs>[]
+    oauthIdentities: Prisma.$OAuthIdentityPayload<ExtArgs>[]
+    verificationCodes: Prisma.$AuthVerificationCodePayload<ExtArgs>[]
+    passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
+    clientAccessRequest: Prisma.$ClientAccessRequestPayload<ExtArgs> | null
+    reviewedAccessRequests: Prisma.$ClientAccessRequestPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
     email: string
-    passwordHash: string
+    passwordHash: string | null
     role: $Enums.Role
     isActive: boolean
+    emailVerifiedAt: Date | null
     lastLoginAt: Date | null
     createdAt: Date
     updatedAt: Date
@@ -1115,6 +1812,11 @@ export interface Prisma__AdminUserClient<T, Null = never, ExtArgs extends runtim
   readonly [Symbol.toStringTag]: "PrismaPromise"
   performedLogs<T extends Prisma.AdminUser$performedLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$performedLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AppointmentLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   refreshTokens<T extends Prisma.AdminUser$refreshTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdminRefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  oauthIdentities<T extends Prisma.AdminUser$oauthIdentitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$oauthIdentitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OAuthIdentityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  verificationCodes<T extends Prisma.AdminUser$verificationCodesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$verificationCodesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuthVerificationCodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  passwordResetTokens<T extends Prisma.AdminUser$passwordResetTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$passwordResetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  clientAccessRequest<T extends Prisma.AdminUser$clientAccessRequestArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$clientAccessRequestArgs<ExtArgs>>): Prisma.Prisma__ClientAccessRequestClient<runtime.Types.Result.GetResult<Prisma.$ClientAccessRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  reviewedAccessRequests<T extends Prisma.AdminUser$reviewedAccessRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$reviewedAccessRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ClientAccessRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1150,6 +1852,7 @@ export interface AdminUserFieldRefs {
   readonly passwordHash: Prisma.FieldRef<"AdminUser", 'String'>
   readonly role: Prisma.FieldRef<"AdminUser", 'Role'>
   readonly isActive: Prisma.FieldRef<"AdminUser", 'Boolean'>
+  readonly emailVerifiedAt: Prisma.FieldRef<"AdminUser", 'DateTime'>
   readonly lastLoginAt: Prisma.FieldRef<"AdminUser", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"AdminUser", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"AdminUser", 'DateTime'>
@@ -1591,6 +2294,121 @@ export type AdminUser$refreshTokensArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.AdminRefreshTokenScalarFieldEnum | Prisma.AdminRefreshTokenScalarFieldEnum[]
+}
+
+/**
+ * AdminUser.oauthIdentities
+ */
+export type AdminUser$oauthIdentitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OAuthIdentity
+   */
+  select?: Prisma.OAuthIdentitySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OAuthIdentity
+   */
+  omit?: Prisma.OAuthIdentityOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OAuthIdentityInclude<ExtArgs> | null
+  where?: Prisma.OAuthIdentityWhereInput
+  orderBy?: Prisma.OAuthIdentityOrderByWithRelationInput | Prisma.OAuthIdentityOrderByWithRelationInput[]
+  cursor?: Prisma.OAuthIdentityWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OAuthIdentityScalarFieldEnum | Prisma.OAuthIdentityScalarFieldEnum[]
+}
+
+/**
+ * AdminUser.verificationCodes
+ */
+export type AdminUser$verificationCodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AuthVerificationCode
+   */
+  select?: Prisma.AuthVerificationCodeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AuthVerificationCode
+   */
+  omit?: Prisma.AuthVerificationCodeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AuthVerificationCodeInclude<ExtArgs> | null
+  where?: Prisma.AuthVerificationCodeWhereInput
+  orderBy?: Prisma.AuthVerificationCodeOrderByWithRelationInput | Prisma.AuthVerificationCodeOrderByWithRelationInput[]
+  cursor?: Prisma.AuthVerificationCodeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AuthVerificationCodeScalarFieldEnum | Prisma.AuthVerificationCodeScalarFieldEnum[]
+}
+
+/**
+ * AdminUser.passwordResetTokens
+ */
+export type AdminUser$passwordResetTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PasswordResetToken
+   */
+  select?: Prisma.PasswordResetTokenSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PasswordResetToken
+   */
+  omit?: Prisma.PasswordResetTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PasswordResetTokenInclude<ExtArgs> | null
+  where?: Prisma.PasswordResetTokenWhereInput
+  orderBy?: Prisma.PasswordResetTokenOrderByWithRelationInput | Prisma.PasswordResetTokenOrderByWithRelationInput[]
+  cursor?: Prisma.PasswordResetTokenWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PasswordResetTokenScalarFieldEnum | Prisma.PasswordResetTokenScalarFieldEnum[]
+}
+
+/**
+ * AdminUser.clientAccessRequest
+ */
+export type AdminUser$clientAccessRequestArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ClientAccessRequest
+   */
+  select?: Prisma.ClientAccessRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ClientAccessRequest
+   */
+  omit?: Prisma.ClientAccessRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClientAccessRequestInclude<ExtArgs> | null
+  where?: Prisma.ClientAccessRequestWhereInput
+}
+
+/**
+ * AdminUser.reviewedAccessRequests
+ */
+export type AdminUser$reviewedAccessRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ClientAccessRequest
+   */
+  select?: Prisma.ClientAccessRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ClientAccessRequest
+   */
+  omit?: Prisma.ClientAccessRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClientAccessRequestInclude<ExtArgs> | null
+  where?: Prisma.ClientAccessRequestWhereInput
+  orderBy?: Prisma.ClientAccessRequestOrderByWithRelationInput | Prisma.ClientAccessRequestOrderByWithRelationInput[]
+  cursor?: Prisma.ClientAccessRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ClientAccessRequestScalarFieldEnum | Prisma.ClientAccessRequestScalarFieldEnum[]
 }
 
 /**

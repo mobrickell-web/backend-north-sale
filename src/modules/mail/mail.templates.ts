@@ -14,16 +14,16 @@ export type AppointmentDetails = {
 
 export type MailContent = { subject: string; text: string; html: string };
 
-export type CalendarLinkSet = {
-  google: string;
-  outlook: string;
-  ics: string;
-};
-
 export type AppointmentLinks = {
   reschedule: string;
   cancel: string;
   calendar?: CalendarLinkSet;
+};
+
+export type CalendarLinkSet = {
+  google: string;
+  outlook: string;
+  ics: string;
 };
 
 export const LOGO_CID = "north-logo";
@@ -43,8 +43,8 @@ const BRAND = {
 
 export function getEmailLogoAttachment() {
   return {
-    filename: "Group 151.svg",
-    content: readFileSync(join(process.cwd(), "assets", "Group 151.svg")),
+    filename: "north-logo.svg",
+    content: readFileSync(join(process.cwd(), "assets", "north-logo.svg")),
     cid: LOGO_CID,
     contentType: "image/svg+xml" as const,
   };
@@ -81,51 +81,35 @@ function detailRows(rows: { label: string; value: string; href?: string }[]) {
     .join("");
 }
 
-function actionButtons(
-  links: AppointmentLinks,
-  options: { showCancel?: boolean; showCalendar?: boolean } = {},
-) {
-  const { showCancel = true, showCalendar = true } = options;
-  const button = (href: string, label: string, secondary = false) =>
-    `<a href="${escapeHtml(href)}" style="display:inline-block;margin:0 6px 8px;padding:12px 20px;border-radius:999px;background:${secondary ? BRAND.navy : BRAND.bronze};color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:700;text-decoration:none;letter-spacing:0.02em;">${escapeHtml(label)}</a>`;
-
-  // Must stay table rows: a bare <div> inside <table> is invalid HTML and
-  // email clients reflow or drop it.
-  const calendar =
-    showCalendar && links.calendar
-      ? `
-    <tr>
-      <td style="padding:12px 28px 8px;text-align:center;">
-        <span style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${BRAND.muted};">Add to your calendar</span>
-        <div style="margin-top:8px;">
-          ${button(links.calendar.google, "Google Calendar", true)}
-          ${button(links.calendar.outlook, "Outlook", true)}
-          ${button(links.calendar.ics, "Apple / Other (.ics)", true)}
-        </div>
-      </td>
-    </tr>`
-      : "";
+function actionButtons(links: AppointmentLinks) {
+  const button = (href: string, label: string, navy = false) =>
+    `<a href="${escapeHtml(href)}" style="display:inline-block;margin:0 4px 8px;padding:12px 20px;border-radius:999px;background:${navy ? BRAND.navy : BRAND.bronze};color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;text-decoration:none;letter-spacing:0.01em;">${escapeHtml(label)}</a>`;
+  const calendarActions = links.calendar
+    ? `
+        <tr>
+          <td style="padding:20px 20px 8px;text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.12em;color:${BRAND.muted};">
+            ADD TO YOUR CALENDAR
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0 20px 20px;text-align:center;">
+            ${button(links.calendar.google, "Google Calendar", true)}
+            ${button(links.calendar.outlook, "Outlook", true)}
+            ${button(links.calendar.ics, "Apple / Other (.ics)", true)}
+          </td>
+        </tr>
+      `
+    : "";
 
   return `
     <tr>
-      <td style="padding:20px 28px 8px;text-align:center;">
+      <td style="padding:20px 20px 0;text-align:center;">
         ${button(links.reschedule, "Reschedule")}
-        ${showCancel ? button(links.cancel, "Cancel") : ""}
+        ${button(links.cancel, "Cancel")}
       </td>
     </tr>
-    ${calendar}
+    ${calendarActions}
   `;
-}
-
-function calendarTextLines(links: AppointmentLinks): string[] {
-  if (!links.calendar) return [];
-  return [
-    "",
-    "Add to your calendar:",
-    `Google Calendar: ${links.calendar.google}`,
-    `Outlook: ${links.calendar.outlook}`,
-    `Apple / Other (.ics): ${links.calendar.ics}`,
-  ];
 }
 
 function emailShell({
@@ -207,7 +191,7 @@ function emailShell({
                     <p style="margin:0 0 4px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#C9D1D9;">
                       <a href="mailto:contact@northpointsalesgroup.com" style="color:${BRAND.bronzeSoft};text-decoration:none;">contact@northpointsalesgroup.com</a>
                       &nbsp;·&nbsp;
-                      <a href="tel:+18006966971" style="color:${BRAND.bronzeSoft};text-decoration:none;">800-696-6971</a>
+                      <a href="tel:+19702501439" style="color:${BRAND.bronzeSoft};text-decoration:none;">(970) 250-1439</a>
                     </p>
                     <p style="margin:8px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#9AA3AD;">
                       ${escapeHtml(footerNote)}
@@ -356,7 +340,6 @@ export function buildBookingEmails(
         "",
         `Reschedule your appointment: ${links.reschedule}`,
         `Cancel your appointment: ${links.cancel}`,
-        ...calendarTextLines(links),
         "",
         "— NORTH POINT SALES GROUP",
       ].join("\n"),
@@ -405,7 +388,6 @@ export function buildRescheduleEmails(
         "",
         `Reschedule again: ${links.reschedule}`,
         `Cancel your appointment: ${links.cancel}`,
-        ...calendarTextLines(links),
         "",
         "— NORTH POINT SALES GROUP",
       ].join("\n"),
@@ -465,7 +447,6 @@ export function buildReminderEmails(
         "",
         `Reschedule your appointment: ${links.reschedule}`,
         `Cancel your appointment: ${links.cancel}`,
-        ...calendarTextLines(links),
         "",
         "Need anything before the call? Just reply to this email.",
         "",
@@ -494,58 +475,6 @@ export function buildReminderEmails(
   };
 }
 
-export type ContactMessageDetails = {
-  name: string;
-  email: string;
-  phone?: string;
-  company?: string;
-  message: string;
-};
-
-export function buildContactEmail(details: ContactMessageDetails): MailContent {
-  const rows = [
-    { label: "Name", value: details.name },
-    { label: "Email", value: details.email, href: `mailto:${details.email}` },
-    ...(details.phone
-      ? [
-          {
-            label: "Phone",
-            value: details.phone,
-            href: `tel:${details.phone.replace(/[^\d+]/g, "")}`,
-          },
-        ]
-      : []),
-    ...(details.company ? [{ label: "Company", value: details.company }] : []),
-  ];
-
-  return {
-    subject: `New contact message — ${details.name}`,
-    text: [
-      "New message from the NORTH POINT SALES GROUP website contact form:",
-      "",
-      `Name: ${details.name}`,
-      `Email: ${details.email}`,
-      ...(details.phone ? [`Phone: ${details.phone}`] : []),
-      ...(details.company ? [`Company: ${details.company}`] : []),
-      "",
-      "Message:",
-      details.message,
-    ].join("\n"),
-    html: emailShell({
-      badge: "Contact Form · Website",
-      heading: "New Contact Message",
-      introHtml: `<p style="margin:0;">A visitor sent a message through the contact form on the NORTH POINT SALES GROUP website. Reply directly to this email to respond.</p>`,
-      detailsHeading: "Sender Details",
-      rows,
-      afterHtml: `
-        <p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:${BRAND.bronze};">Message</p>
-        <div style="padding:14px 16px;background:${BRAND.cream};border:1px solid ${BRAND.border};border-radius:10px;color:${BRAND.navy};white-space:pre-wrap;">${escapeHtml(details.message)}</div>
-      `,
-      footerNote: "Internal notification from northpointsalesgroup.com",
-    }),
-  };
-}
-
 export function buildCancellationEmails(
   details: AppointmentDetails,
   links: AppointmentLinks,
@@ -571,10 +500,7 @@ export function buildCancellationEmails(
         "Your appointment with NORTH POINT SALES GROUP has been cancelled.",
         reason ? `Reason: ${reason}` : "",
         "",
-        "If this was a mistake, you can reschedule the same appointment here:",
-        links.reschedule,
-        "",
-        "Or simply reply to this email, or call 800-696-6971, and we'll help.",
+        "If this was a mistake, you can book a new appointment on our website, or reply to this email.",
         "",
         "— NORTH POINT SALES GROUP",
       ]
@@ -586,14 +512,10 @@ export function buildCancellationEmails(
         introHtml: `
           <p style="margin:0 0 10px;">Hi <strong style="color:${BRAND.navy};">${escapeHtml(details.contactName)}</strong>,</p>
           <p style="margin:0 0 10px;">Your appointment with <strong style="color:${BRAND.navy};">NORTH POINT SALES GROUP</strong> has been cancelled.</p>
-          <p style="margin:0;color:${BRAND.navy};font-weight:600;">If this was a mistake, use the button below to reschedule the same appointment, reply to this email, or call <a href="tel:+18006966971" style="color:${BRAND.bronze};text-decoration:none;font-weight:700;">800-696-6971</a>.</p>
+          <p style="margin:0;color:${BRAND.navy};font-weight:600;">If this was a mistake, just book again on our website or reply to this email.</p>
         `,
         detailsHeading: "Cancelled Appointment",
         rows: cancelledRows,
-        actionsHtml: actionButtons(links, {
-          showCancel: false,
-          showCalendar: false,
-        }),
         footerNote: "This is an automated cancellation notification",
       }),
     },
@@ -619,5 +541,84 @@ export function buildCancellationEmails(
         footerNote: "Internal notification from northpointsalesgroup.com",
       }),
     },
+  };
+}
+
+export type ContactMessageDetails = {
+  name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  message: string;
+};
+
+export function buildContactEmail(details: ContactMessageDetails): MailContent {
+  const rows = [
+    { label: "Name", value: details.name },
+    {
+      label: "Email",
+      value: details.email,
+      href: `mailto:${details.email}`,
+    },
+    ...(details.phone ? [{ label: "Phone", value: details.phone }] : []),
+    ...(details.company ? [{ label: "Company", value: details.company }] : []),
+    { label: "Message", value: details.message },
+  ];
+
+  return {
+    subject: `New contact message — ${details.name}`,
+    text: [
+      "New contact message from the NORTH POINT SALES GROUP website:",
+      "",
+      `Name: ${details.name}`,
+      `Email: ${details.email}`,
+      ...(details.phone ? [`Phone: ${details.phone}`] : []),
+      ...(details.company ? [`Company: ${details.company}`] : []),
+      "",
+      details.message,
+    ].join("\n"),
+    html: emailShell({
+      badge: "New Message · Website Form",
+      heading: "New Contact Message",
+      introHtml: `<p style="margin:0;">A visitor sent a message through the NORTH POINT SALES GROUP contact form.</p>`,
+      detailsHeading: "Contact Details",
+      rows,
+      footerNote: "Internal notification from northpointsalesgroup.com",
+    }),
+  };
+}
+
+export function buildAuthVerificationEmail(
+  code: string,
+  purpose: "SIGNUP" | "PASSWORD_RESET",
+): MailContent {
+  const signup = purpose === "SIGNUP";
+  const heading = signup ? "Verify your email address" : "Reset your password";
+  const instruction = signup
+    ? "Use the verification code below to confirm your email address."
+    : "Use the verification code below to continue resetting your password.";
+
+  return {
+    subject: `${heading} — NORTH POINT SALES GROUP`,
+    text: [
+      heading,
+      "",
+      instruction,
+      "",
+      `Verification code: ${code}`,
+      "This code expires in 10 minutes. If you did not request it, you can ignore this email.",
+      "",
+      "— NORTH POINT SALES GROUP",
+    ].join("\n"),
+    html: emailShell({
+      badge: signup ? "Email Verification" : "Password Reset",
+      heading,
+      introHtml: `<p style="margin:0;">${instruction}</p>`,
+      detailsHeading: "Your verification code",
+      rows: [{ label: "Code", value: code }],
+      afterHtml:
+        '<p style="margin:0;">This code expires in 10 minutes. If you did not request it, you can ignore this email.</p>',
+      footerNote: "This is an automated account security email",
+    }),
   };
 }

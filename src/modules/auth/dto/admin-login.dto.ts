@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsString, MinLength } from "class-validator";
+import { IsEmail, IsIn, IsString, MinLength } from "class-validator";
 
 export class AdminLoginDto {
   @ApiProperty({ example: "admin@northpointsales.com" })
@@ -10,4 +10,10 @@ export class AdminLoginDto {
   @IsString()
   @MinLength(8)
   password!: string;
+
+  @ApiProperty({
+    enum: ["CLIENT", "SALES_REPRESENTATIVE", "MASTER_ADMIN"],
+  })
+  @IsIn(["CLIENT", "SALES_REPRESENTATIVE", "MASTER_ADMIN"])
+  category!: "CLIENT" | "SALES_REPRESENTATIVE" | "MASTER_ADMIN";
 }
