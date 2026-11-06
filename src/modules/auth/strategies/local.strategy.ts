@@ -3,6 +3,7 @@ import { PassportStrategy } from "@nestjs/passport";
 import type { Request } from "express";
 import { Strategy } from "passport-local";
 import type { AdminAuth } from "../../../common/interfaces/admin-auth.interface";
+import type { LoginCategory } from "../auth.constants";
 import { AuthService } from "../auth.service";
 
 @Injectable()
@@ -21,7 +22,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, "local") {
     password: string,
   ): Promise<AdminAuth> {
     const category = (req.body as { category?: unknown })?.category as
-      "CLIENT" | "SALES_REPRESENTATIVE" | "MASTER_ADMIN" | undefined;
+      LoginCategory | undefined;
     return this.authService.validateAdmin(email, password, req.ip, category);
   }
 }

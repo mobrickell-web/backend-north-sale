@@ -1,5 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsString, MaxLength, MinLength } from "class-validator";
+import { IsEmail, IsIn, IsString, MaxLength, MinLength } from "class-validator";
+import type { StaffPosition } from "../../../generated/prisma/enums";
+import { STAFF_POSITIONS } from "../auth.constants";
 
 export class CreateRepresentativeDto {
   @ApiProperty({ example: "Jordan Lee", maxLength: 120 })
@@ -22,4 +24,11 @@ export class CreateRepresentativeDto {
   @MinLength(8)
   @MaxLength(72)
   password!: string;
+
+  @ApiProperty({
+    enum: STAFF_POSITIONS,
+    description: "Staff position assigned by the Master Admin",
+  })
+  @IsIn(STAFF_POSITIONS)
+  position!: StaffPosition;
 }

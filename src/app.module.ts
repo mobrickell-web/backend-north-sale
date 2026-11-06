@@ -7,9 +7,11 @@ import { resolve } from "node:path";
 import configuration from "./config/configuration";
 import { PrismaModule } from "./database/prisma.module";
 import { AppointmentsModule } from "./modules/appointments/appointments.module";
+import { AssessmentResultsModule } from "./modules/assessment-results/assessment-results.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { ContactModule } from "./modules/contact/contact.module";
 import { HealthModule } from "./modules/health/health.module";
+import { LeadsModule } from "./modules/leads/leads.module";
 import { WebhooksModule } from "./modules/webhooks/webhooks.module";
 
 @Module({
@@ -30,6 +32,8 @@ import { WebhooksModule } from "./modules/webhooks/webhooks.module";
     AppointmentsModule,
     ContactModule,
     HealthModule,
+    LeadsModule,
+    AssessmentResultsModule,
     WebhooksModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

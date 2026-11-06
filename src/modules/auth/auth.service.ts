@@ -30,13 +30,15 @@ import {
   ClientAccessStatus,
   OAuthProvider,
   Role,
+  StaffPosition,
 } from "../../generated/prisma/enums";
 import { Prisma } from "../../generated/prisma/client";
 import { MailService } from "../mail/mail.service";
 import type { ResendCodeDto, VerifyCodeDto } from "./dto/email-auth.dto";
-import type { SignupDto } from "./dto/signup.dto";
 import type { UpdatePasswordDto } from "./dto/update-password.dto";
 import type { CreateRepresentativeDto } from "./dto/create-representative.dto";
+import type { CreateClientDto } from "./dto/create-client.dto";
+import type { GoogleLoginCategory, LoginCategory } from "./auth.constants";
 
 export interface LoginResult {
   accessToken: string;
@@ -51,8 +53,8 @@ const GENERIC_AUTH_MESSAGE =
   "If the account is eligible, a verification code will be sent.";
 const GENERIC_SIGNUP_RESEND_MESSAGE =
   "If signup is still awaiting email verification, a code will be sent. If your email is already verified, no new email is needed.";
-const SIGNUP_SUCCESS_MESSAGE =
-  "Verification code sent to your email. Please verify to activate your account.";
+const ACCOUNT_NOT_PROVISIONED_MESSAGE =
+  "This account must be created by the Master Admin before sign-in.";
 const CODE_TTL_MS = 10 * 60 * 1000;
 const CODE_RESEND_INTERVAL_MS = 60 * 1000;
 const CODE_MAX_ATTEMPTS = 5;
@@ -79,58 +81,6 @@ export class AuthService {
       "7d") as StringValue;
     this.authCodeSecret = config.getOrThrow<string>("jwt.secret");
     this.googleClientId = config.get<string>("google.clientId");
-  }
-
-  async signup(dto: SignupDto): Promise<{ message: string }> {
-    this.assertPasswordLength(dto.password);
-    if (!dto.name.trim()) {
-      throw new BadRequestException("Name is required");
-    }
-    const email = this.normalizeEmail(dto.email);
-    const existing = await this.prisma.adminUser.findUnique({
-      where: { email },
-    });
-
-    if (existing) {
-      if (
-        existing.role === Role.USER &&
-        existing.isActive &&
-        !existing.emailVerifiedAt
-      ) {
-        await this.sendVerificationCode(
-          existing.id,
-          email,
-          AuthCodePurpose.SIGNUP,
-        );
-      }
-      return { message: SIGNUP_SUCCESS_MESSAGE };
-    }
-
-    const passwordHash = await bcrypt.hash(dto.password, 12);
-    let account;
-    try {
-      account = await this.prisma.adminUser.create({
-        data: {
-          name: dto.name.trim(),
-          email,
-          passwordHash,
-          role: Role.USER,
-          emailVerifiedAt: null,
-          clientAccessRequest: { create: {} },
-        },
-      });
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2002"
-      ) {
-        return { message: SIGNUP_SUCCESS_MESSAGE };
-      }
-      throw error;
-    }
-
-    await this.sendVerificationCode(account.id, email, AuthCodePurpose.SIGNUP);
-    return { message: SIGNUP_SUCCESS_MESSAGE };
   }
 
   async resendCode(
@@ -376,7 +326,7 @@ export class AuthService {
 
   async googleLogin(
     idToken: string,
-    category: "CLIENT" | "SALES_REPRESENTATIVE" | "MASTER_ADMIN" | "OTHER",
+    category: GoogleLoginCategory,
   ): Promise<LoginResult> {
     if (category === "OTHER") {
       throw new ForbiddenException(
@@ -416,7 +366,7 @@ export class AuthService {
     });
 
     if (account) {
-      this.assertLoginCategory(account.role, category);
+      this.assertLoginCategory(account, category);
       if (!account.isActive) {
         throw new UnauthorizedException("This account is inactive.");
       }
@@ -429,7 +379,7 @@ export class AuthService {
         if (!existingAccount.isActive) {
           throw new UnauthorizedException("This account is inactive.");
         }
-        this.assertLoginCategory(existingAccount.role, category);
+        this.assertLoginCategory(existingAccount, category);
         try {
           await this.prisma.oAuthIdentity.create({
             data: {
@@ -457,45 +407,13 @@ export class AuthService {
           },
         });
       } else {
-        if (category !== "CLIENT") {
-          throw new UnauthorizedException(
-            "This account must be created by the Super Admin before sign-in.",
-          );
-        }
-
-        try {
-          account = await this.prisma.adminUser.create({
-            data: {
-              name: payload.name?.trim().slice(0, 120) || email,
-              email,
-              role: Role.USER,
-              isActive: true,
-              emailVerifiedAt: new Date(),
-              oauthIdentities: {
-                create: {
-                  provider: OAuthProvider.GOOGLE,
-                  providerAccountId: payload.sub,
-                  providerEmail: email,
-                },
-              },
-              clientAccessRequest: { create: {} },
-            },
-          });
-        } catch (error) {
-          if (
-            error instanceof Prisma.PrismaClientKnownRequestError &&
-            error.code === "P2002"
-          ) {
-            throw new ConflictException(
-              "This Google account is already registered. Please sign in again.",
-            );
-          }
-          throw error;
-        }
+        // Google sign-in never creates accounts: only accounts the Master
+        // Admin has already provisioned may sign in.
+        throw new UnauthorizedException(ACCOUNT_NOT_PROVISIONED_MESSAGE);
       }
     }
 
-    this.assertLoginCategory(account.role, category);
+    this.assertLoginCategory(account, category);
     if (!account.emailVerifiedAt) {
       account = await this.prisma.adminUser.update({
         where: { id: account.id },
@@ -623,6 +541,50 @@ export class AuthService {
     return { isActive: true };
   }
 
+  async createClient(dto: CreateClientDto, reviewerId: string) {
+    this.assertPasswordLength(dto.password);
+    if (!dto.name.trim()) {
+      throw new BadRequestException("Name is required");
+    }
+
+    const now = new Date();
+    try {
+      return await this.prisma.adminUser.create({
+        data: {
+          name: dto.name.trim(),
+          email: this.normalizeEmail(dto.email),
+          passwordHash: await bcrypt.hash(dto.password, 12),
+          role: Role.USER,
+          isActive: true,
+          emailVerifiedAt: now,
+          clientAccessRequest: {
+            create: {
+              status: ClientAccessStatus.APPROVED,
+              requestedAt: now,
+              reviewedAt: now,
+              reviewedById: reviewerId,
+            },
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          isActive: true,
+          createdAt: true,
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new ConflictException("An account already uses this email");
+      }
+      throw error;
+    }
+  }
+
   async listRepresentatives() {
     return this.prisma.adminUser.findMany({
       where: { role: Role.SALES_REPRESENTATIVE },
@@ -630,6 +592,7 @@ export class AuthService {
         id: true,
         name: true,
         email: true,
+        position: true,
         isActive: true,
         createdAt: true,
         lastLoginAt: true,
@@ -662,6 +625,7 @@ export class AuthService {
           email: this.normalizeEmail(dto.email),
           passwordHash: await bcrypt.hash(dto.password, 12),
           role: Role.SALES_REPRESENTATIVE,
+          position: dto.position,
           isActive: true,
           emailVerifiedAt: new Date(),
         },
@@ -670,6 +634,7 @@ export class AuthService {
           name: true,
           email: true,
           role: true,
+          position: true,
           isActive: true,
           createdAt: true,
         },
@@ -713,7 +678,7 @@ export class AuthService {
     email: string,
     password: string,
     ip?: string,
-    category?: "CLIENT" | "SALES_REPRESENTATIVE" | "MASTER_ADMIN",
+    category?: LoginCategory,
   ): Promise<AdminAuth> {
     const admin = await this.prisma.adminUser.findUnique({
       where: { email: email.trim().toLowerCase() },
@@ -740,7 +705,7 @@ export class AuthService {
     if (!category) {
       throw new UnauthorizedException("Select the account type to sign in.");
     }
-    this.assertLoginCategory(admin.role, category);
+    this.assertLoginCategory(admin, category);
     await this.assertAccountAccess(admin.id, admin.role);
 
     await this.prisma.adminUser.update({
@@ -890,12 +855,7 @@ export class AuthService {
       throw new UnauthorizedException("Admin not found or inactive");
     }
     await this.assertAccountAccess(admin.id, admin.role);
-    return {
-      id: admin.id,
-      name: admin.name,
-      email: admin.email,
-      role: admin.role,
-    };
+    return this.toAdminAuth(admin);
   }
 
   private buildLoginResult(
@@ -1036,12 +996,14 @@ export class AuthService {
     name: string;
     email: string;
     role: AdminAuth["role"];
+    position: AdminAuth["position"];
   }): AdminAuth {
     return {
       id: account.id,
       name: account.name,
       email: account.email,
       role: account.role,
+      position: account.position,
     };
   }
 
@@ -1053,19 +1015,23 @@ export class AuthService {
     );
   }
 
+  /**
+   * The selected access type must exactly match the role (and, for staff, the
+   * position) the Master Admin assigned. It never widens permissions.
+   */
   private assertLoginCategory(
-    role: Role,
-    category: "CLIENT" | "SALES_REPRESENTATIVE" | "MASTER_ADMIN",
+    account: { role: Role; position: StaffPosition | null },
+    category: GoogleLoginCategory,
   ): void {
-    const expectedCategory =
-      role === Role.USER
+    const expectedCategory: LoginCategory | null =
+      account.role === Role.USER
         ? "CLIENT"
-        : role === Role.SALES_REPRESENTATIVE
-          ? "SALES_REPRESENTATIVE"
-          : role === Role.SUPER_ADMIN
+        : account.role === Role.SALES_REPRESENTATIVE
+          ? account.position
+          : account.role === Role.SUPER_ADMIN
             ? "MASTER_ADMIN"
             : null;
-    if (category !== expectedCategory) {
+    if (expectedCategory === null || category !== expectedCategory) {
       throw new ForbiddenException(
         "This account does not match the selected login type.",
       );

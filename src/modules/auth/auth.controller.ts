@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpStatus,
   HttpCode,
@@ -14,6 +15,9 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import {
+  ApiBody,
+  ApiConflictResponse,
+  ApiForbiddenResponse,
   ApiOperation,
   ApiSecurity,
   ApiTags,
@@ -36,6 +40,7 @@ import { GoogleLoginDto } from "./dto/google-login.dto";
 import { SignupDto } from "./dto/signup.dto";
 import { UpdatePasswordDto } from "./dto/update-password.dto";
 import { CreateRepresentativeDto } from "./dto/create-representative.dto";
+import { CreateClientDto } from "./dto/create-client.dto";
 import { LocalAuthGuard } from "./guards/local-auth.guard";
 
 const REFRESH_COOKIE_NAME = "north_admin_refresh_token";
@@ -124,12 +129,23 @@ export class AuthController {
     };
   }
 
+  /**
+   * Self-signup is disabled: client accounts are created by the Master Admin.
+   * The route is kept so older clients receive a clear message.
+   */
   @Post("signup")
-  @HttpCode(HttpStatus.ACCEPTED)
   @Throttle({ default: { limit: 3, ttl: 60_000 } })
-  @ApiOperation({ summary: "Register a public USER account and send a code" })
-  signup(@Body() dto: SignupDto): Promise<{ message: string }> {
-    return this.authService.signup(dto);
+  @ApiOperation({
+    summary: "Disabled — client accounts are created by the Master Admin",
+  })
+  @ApiBody({ type: SignupDto, required: false })
+  @ApiForbiddenResponse({
+    description: "Client accounts are created by the Master Admin.",
+  })
+  signup(): never {
+    throw new ForbiddenException(
+      "Client accounts are created by the Master Admin.",
+    );
   }
 
   @Post("verify-code")
@@ -176,7 +192,9 @@ export class AuthController {
   @Post("google")
   @HttpCode(200)
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
-  @ApiOperation({ summary: "Sign in or sign up as USER using Google" })
+  @ApiOperation({
+    summary: "Sign in with Google (pre-authorized accounts only)",
+  })
   async googleLogin(
     @Body() dto: GoogleLoginDto,
     @Res({ passthrough: true }) response: Response,
@@ -294,6 +312,17 @@ export class AuthController {
       dto.decision,
       dto.rejectionReason,
     );
+  }
+
+  @Post("admin/clients")
+  @UseGuards(JwtAuthGuard, SuperAdminGuard)
+  @ApiSecurity("access-cookie")
+  @ApiOperation({
+    summary: "Create an approved client account (Master Admin only)",
+  })
+  @ApiConflictResponse({ description: "An account already uses this email" })
+  createClient(@Body() dto: CreateClientDto, @CurrentUser() admin: AdminAuth) {
+    return this.authService.createClient(dto, admin.id);
   }
 
   @Delete("admin/clients/:id/access")

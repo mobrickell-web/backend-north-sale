@@ -20,6 +20,13 @@ enum Role {
   SALES_REPRESENTATIVE
 }
 
+enum StaffPosition {
+  ACCOUNT_EXECUTIVE
+  IMPLEMENTATION_SPECIALIST
+  FRACTIONAL_VP
+  REGIONAL_SALES_MANAGER
+}
+
 enum OAuthProvider {
   GOOGLE
 }
@@ -70,16 +77,18 @@ enum ActionType {
 // -------------------------------------------------------------
 
 model AdminUser {
-  id              String    @id @default(uuid()) @db.Uuid
-  name            String    @db.VarChar(120)
-  email           String    @unique @db.VarChar(255)
-  passwordHash    String?   @map("password_hash")
-  role            Role      @default(USER)
-  isActive        Boolean   @default(true) @map("is_active")
-  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz(6)
-  lastLoginAt     DateTime? @map("last_login_at") @db.Timestamptz(6)
-  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id              String         @id @default(uuid()) @db.Uuid
+  name            String         @db.VarChar(120)
+  email           String         @unique @db.VarChar(255)
+  passwordHash    String?        @map("password_hash")
+  role            Role           @default(USER)
+  /// Staff position for SALES_REPRESENTATIVE accounts; null for other roles.
+  position        StaffPosition? @map("position")
+  isActive        Boolean        @default(true) @map("is_active")
+  emailVerifiedAt DateTime?      @map("email_verified_at") @db.Timestamptz(6)
+  lastLoginAt     DateTime?      @map("last_login_at") @db.Timestamptz(6)
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   performedLogs AppointmentLog[]
 
@@ -89,6 +98,8 @@ model AdminUser {
   passwordResetTokens    PasswordResetToken[]
   clientAccessRequest    ClientAccessRequest?   @relation("ClientAccessRequester")
   reviewedAccessRequests ClientAccessRequest[]  @relation("ClientAccessReviewer")
+  leads                  Lead[]
+  assessmentResults      AssessmentResult[]
 
   @@map("admin_users")
 }
@@ -282,4 +293,49 @@ model EmailDelivery {
   @@index([appointmentId], name: "idx_email_delivery_appointment_id")
   @@index([status], name: "idx_email_delivery_status")
   @@map("email_deliveries")
+}
+
+// -------------------------------------------------------------
+// LEADS (Account Executive CRM — each lead belongs to one owner)
+// -------------------------------------------------------------
+
+model Lead {
+  id        String    @id @default(uuid()) @db.Uuid
+  owner     AdminUser @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId   String    @map("owner_id") @db.Uuid
+  name      String    @db.VarChar(150)
+  email     String?   @db.VarChar(255)
+  phone     String?   @db.VarChar(50)
+  address   String?   @db.Text
+  notes     String?   @db.Text
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([ownerId], name: "idx_lead_owner")
+  @@map("leads")
+}
+
+// -------------------------------------------------------------
+// ASSESSMENT RESULTS
+// Scored in the frontend; stored so results can be shown on the
+// client dashboard.
+// -------------------------------------------------------------
+
+model AssessmentResult {
+  id            String     @id @default(uuid()) @db.Uuid
+  assessment    String     @db.VarChar(60)
+  firstName     String     @map("first_name") @db.VarChar(120)
+  /// Normalised to lowercase.
+  email         String     @db.VarChar(255)
+  overallScore  Int        @map("overall_score")
+  maxScore      Int        @map("max_score")
+  answers       Json
+  result        Json
+  submittedBy   AdminUser? @relation(fields: [submittedById], references: [id], onDelete: SetNull)
+  submittedById String?    @map("submitted_by_id") @db.Uuid
+  createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([email], name: "idx_assessment_result_email")
+  @@index([submittedById], name: "idx_assessment_result_submitted_by")
+  @@map("assessment_results")
 }

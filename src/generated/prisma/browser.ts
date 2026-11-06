@@ -62,3 +62,13 @@ export type AppointmentLog = Prisma.AppointmentLogModel
  * 
  */
 export type EmailDelivery = Prisma.EmailDeliveryModel
+/**
+ * Model Lead
+ * 
+ */
+export type Lead = Prisma.LeadModel
+/**
+ * Model AssessmentResult
+ * 
+ */
+export type AssessmentResult = Prisma.AssessmentResultModel

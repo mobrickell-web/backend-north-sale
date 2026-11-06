@@ -18,6 +18,16 @@ export const Role = {
 export type Role = (typeof Role)[keyof typeof Role]
 
 
+export const StaffPosition = {
+  ACCOUNT_EXECUTIVE: 'ACCOUNT_EXECUTIVE',
+  IMPLEMENTATION_SPECIALIST: 'IMPLEMENTATION_SPECIALIST',
+  FRACTIONAL_VP: 'FRACTIONAL_VP',
+  REGIONAL_SALES_MANAGER: 'REGIONAL_SALES_MANAGER'
+} as const
+
+export type StaffPosition = (typeof StaffPosition)[keyof typeof StaffPosition]
+
+
 export const OAuthProvider = {
   GOOGLE: 'GOOGLE'
 } as const
