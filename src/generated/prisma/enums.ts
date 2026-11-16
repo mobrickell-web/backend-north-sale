@@ -89,6 +89,66 @@ export const ActionType = {
 export type ActionType = (typeof ActionType)[keyof typeof ActionType]
 
 
+export const AssessmentStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type AssessmentStatus = (typeof AssessmentStatus)[keyof typeof AssessmentStatus]
+
+
+export const AssessmentInstanceStatus = {
+  PENDING: 'PENDING',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED'
+} as const
+
+export type AssessmentInstanceStatus = (typeof AssessmentInstanceStatus)[keyof typeof AssessmentInstanceStatus]
+
+
+export const ImprovementStatus = {
+  AGREED: 'AGREED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  DONE: 'DONE'
+} as const
+
+export type ImprovementStatus = (typeof ImprovementStatus)[keyof typeof ImprovementStatus]
+
+
+export const MilestoneStatus = {
+  PLANNED: 'PLANNED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED'
+} as const
+
+export type MilestoneStatus = (typeof MilestoneStatus)[keyof typeof MilestoneStatus]
+
+
+export const ReportType = {
+  QUARTERLY: 'QUARTERLY',
+  FINAL: 'FINAL',
+  OTHER: 'OTHER'
+} as const
+
+export type ReportType = (typeof ReportType)[keyof typeof ReportType]
+
+
+export const AuditAction = {
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  DELETE: 'DELETE',
+  PUBLISH: 'PUBLISH',
+  COMPLETE: 'COMPLETE',
+  DOWNLOAD: 'DOWNLOAD',
+  ON_BEHALF: 'ON_BEHALF',
+  ACCESS_ALLOW: 'ACCESS_ALLOW',
+  ACCESS_DENY: 'ACCESS_DENY'
+} as const
+
+export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction]
+
+
 export const EmailDeliveryStatus = {
   ACCEPTED: 'ACCEPTED',
   DELIVERED: 'DELIVERED',

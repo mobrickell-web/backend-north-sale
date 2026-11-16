@@ -70,6 +70,18 @@ enum ActionType {
   EMAIL_RESENT_BY_ADMIN
 }
 
+enum AssessmentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AssessmentInstanceStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
 // -------------------------------------------------------------
 // AUTHENTICATED ACCOUNTS
 // AdminUser is the existing Prisma model/table name. It will temporarily store
@@ -188,33 +200,32 @@ model AdminRefreshToken {
 
 model Appointment {
   id String @id @default(uuid()) @db.Uuid
-
-  contactName String  @map("contact_name") @db.VarChar(150)
-  companyName String  @map("company_name") @db.VarChar(150)
-  email       String  @db.VarChar(255)
-  phone       String? @db.VarChar(50)
-  notes       String? @db.Text
+  contactName String @map("contact_name") @db.VarChar(150)
+  companyName String @map("company_name") @db.VarChar(150)
+  email String @db.VarChar(255)
+  phone String? @db.VarChar(50)
+  notes String? @db.Text
 
   appointmentType AppointmentType @default(INITIAL_CONSULTATION) @map("appointment_type")
-  durationMinutes Int             @default(30) @map("duration_minutes")
+  durationMinutes Int @default(30) @map("duration_minutes")
 
-  scheduledAtUtc   DateTime @map("scheduled_at_utc") @db.Timestamptz(6)
-  prospectTimezone String   @map("prospect_timezone") @db.VarChar(100)
+  scheduledAtUtc DateTime @map("scheduled_at_utc") @db.Timestamptz(6)
+  prospectTimezone String @map("prospect_timezone") @db.VarChar(100)
 
-  status             AppointmentStatus @default(CONFIRMED)
-  rescheduleToken    String            @unique @default(uuid()) @map("reschedule_token") @db.Uuid
-  cancelToken        String            @unique @default(uuid()) @map("cancel_token") @db.Uuid
-  cancellationReason String?           @map("cancellation_reason") @db.Text
+  status AppointmentStatus @default(CONFIRMED)
+  rescheduleToken String @unique @default(uuid()) @map("reschedule_token") @db.Uuid
+  cancelToken String @unique @default(uuid()) @map("cancel_token") @db.Uuid
+  cancellationReason String? @map("cancellation_reason") @db.Text
 
-  reminder24hSent   Boolean   @default(false) @map("reminder_24h_sent")
+  reminder24hSent Boolean @default(false) @map("reminder_24h_sent")
   reminder24hSentAt DateTime? @map("reminder_24h_sent_at") @db.Timestamptz(6)
-  reminder1hSent    Boolean   @default(false) @map("reminder_1h_sent")
-  reminder1hSentAt  DateTime? @map("reminder_1h_sent_at") @db.Timestamptz(6)
+  reminder1hSent Boolean @default(false) @map("reminder_1h_sent")
+  reminder1hSentAt DateTime? @map("reminder_1h_sent_at") @db.Timestamptz(6)
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  history         AppointmentLog[]
+  history AppointmentLog[]
   emailDeliveries EmailDelivery[]
 
   @@index([scheduledAtUtc, status], name: "idx_appointment_schedule_status")
@@ -223,6 +234,129 @@ model Appointment {
   @@index([cancelToken], name: "idx_appointment_cancel_token")
   @@map("appointments")
 }
+
+// -------------------------------------------------------------
+// CLIENT ENGAGEMENT MODELS
+// -------------------------------------------------------------
+
+enum ImprovementStatus {
+  AGREED
+  IN_PROGRESS
+  DONE
+}
+
+enum MilestoneStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum ReportType {
+  QUARTERLY
+  FINAL
+  OTHER
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  PUBLISH
+  COMPLETE
+  DOWNLOAD
+  ON_BEHALF
+  ACCESS_ALLOW
+  ACCESS_DENY
+}
+
+model BaselineMetric {
+  id          String   @id @default(uuid()) @db.Uuid
+  clientId    String   @db.Uuid
+  metricKey   String   @db.VarChar(50)
+  label       String   @db.VarChar(150)
+  value       Float
+  unit        String?  @db.VarChar(20)
+  measuredAt  DateTime @db.Timestamptz(6)
+  source      String?  @db.Text
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([clientId, metricKey])
+}
+
+model Improvement {
+  id          String   @id @default(uuid()) @db.Uuid
+  clientId    String   @db.Uuid
+  title       String   @db.VarChar(150)
+  description String?  @db.Text
+  ownerName   String?  @db.VarChar(120)
+  ownerSide   String?  @db.VarChar(20) // NPSG or CLIENT
+  status      ImprovementStatus @default(AGREED)
+  targetDate  DateTime?
+  agreedAt    DateTime? @db.Timestamptz(6)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([clientId, status])
+}
+
+model KpiMeasurement {
+  id          String   @id @default(uuid()) @db.Uuid
+  clientId    String   @db.Uuid
+  metricKey   String   @db.VarChar(50)
+  value       Float
+  measuredAt  DateTime @db.Timestamptz(6)
+  target      Float?
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([clientId, metricKey])
+}
+
+model ImplementationMilestone {
+  id          String   @id @default(uuid()) @db.Uuid
+  clientId    String   @db.Uuid
+  title       String   @db.VarChar(150)
+  startDate   DateTime?
+  dueDate     DateTime?
+  ownerName   String?  @db.VarChar(120)
+  ownerSide   String?  @db.VarChar(20)
+  status      MilestoneStatus @default(PLANNED)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([clientId, status])
+}
+
+model EngagementReport {
+  id               String     @id @default(uuid()) @db.Uuid
+  clientId         String     @db.Uuid
+  title            String     @db.VarChar(150)
+  type             ReportType @default(OTHER)
+  period           String     @db.VarChar(100)
+  publishedAt      DateTime?  @db.Timestamptz(6)
+  fileKey          String     @db.VarChar(255)
+  originalFileName String?    @map("original_file_name") @db.VarChar(255)
+  contentType      String?    @map("content_type") @db.VarChar(120)
+  summary          String?    @db.Text
+  createdAt        DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime   @updatedAt @db.Timestamptz(6)
+
+  @@index([clientId, type])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  actorId     String   @db.Uuid
+  action      AuditAction
+  targetType  String   @db.VarChar(50)
+  targetId    String   @db.Uuid
+  clientId    String?  @db.Uuid
+  at          DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([actorId, targetType])
+}
+
 
 // -------------------------------------------------------------
 // APPOINTMENT AUDIT & HISTORY LOGS
@@ -293,6 +427,56 @@ model EmailDelivery {
   @@index([appointmentId], name: "idx_email_delivery_appointment_id")
   @@index([status], name: "idx_email_delivery_status")
   @@map("email_deliveries")
+}
+
+// -------------------------------------------------------------
+// ASSESSMENTS
+// One row per authored assessment. `document` is the editor's whole
+// content object (sections/questions/settings/resultText) stored as
+// JSONB; identity and lifecycle live in the columns. Only PUBLISHED
+// rows are ever returned by the public endpoint.
+// -------------------------------------------------------------
+
+model Assessment {
+  id              String           @id @default(uuid()) @db.Uuid
+  slug            String           @unique @db.VarChar(120)
+  title           String           @db.VarChar(200)
+  status          AssessmentStatus @default(DRAFT)
+  /// When true, this is the single client-facing assessment (dashboard/start).
+  isClientPrimary Boolean          @default(false) @map("is_client_primary")
+  document        Json             @db.JsonB
+  publishedAt     DateTime?        @map("published_at") @db.Timestamptz(6)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  instances AssessmentInstance[]
+
+  @@index([status], name: "idx_assessment_status")
+  @@index([isClientPrimary], name: "idx_assessment_client_primary")
+  @@map("assessments")
+}
+
+// One instance per client per assessment. Result JSON is client-safe only
+// (overall/section scores + closer review). Scoring math stays server-side.
+model AssessmentInstance {
+  id                String                   @id @default(uuid()) @db.Uuid
+  assessmentId      String                   @map("assessment_id") @db.Uuid
+  assessment        Assessment               @relation(fields: [assessmentId], references: [id], onDelete: Restrict)
+  clientId          String                   @map("client_id") @db.Uuid
+  status            AssessmentInstanceStatus @default(PENDING)
+  answers           Json?                    @db.JsonB
+  result            Json?                    @db.JsonB
+  completedBy       String?                  @map("completed_by") @db.Uuid
+  onBehalfOf        String?                  @map("on_behalf_of") @db.Uuid
+  submittedAt       DateTime?                @map("submitted_at") @db.Timestamptz(6)
+  onBehalfTokenHash String?                  @unique @map("on_behalf_token_hash") @db.VarChar(128)
+  tokenExpiresAt    DateTime?                @map("token_expires_at") @db.Timestamptz(6)
+  createdAt         DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([clientId, assessmentId], name: "uq_assessment_instance_client_assessment")
+  @@index([clientId, status], name: "idx_assessment_instance_client_status")
+  @@map("assessment_instances")
 }
 
 // -------------------------------------------------------------

@@ -606,7 +606,7 @@ export function buildAuthVerificationEmail(
       instruction,
       "",
       `Verification code: ${code}`,
-      "This code expires in 10 minutes. If you did not request it, you can ignore this email.",
+      "This code expires in 5 minutes. If you did not request it, you can ignore this email.",
       "",
       "— NORTH POINT SALES GROUP",
     ].join("\n"),
@@ -617,7 +617,7 @@ export function buildAuthVerificationEmail(
       detailsHeading: "Your verification code",
       rows: [{ label: "Code", value: code }],
       afterHtml:
-        '<p style="margin:0;">This code expires in 10 minutes. If you did not request it, you can ignore this email.</p>',
+        '<p style="margin:0;">This code expires in 5 minutes. If you did not request it, you can ignore this email.</p>',
       footerNote: "This is an automated account security email",
     }),
   };

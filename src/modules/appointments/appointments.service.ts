@@ -36,6 +36,7 @@ export class AppointmentsService {
 
   async create(dto: CreateAppointmentDto): Promise<AppointmentModel> {
     const scheduledAtUtc = this.toUtc(dto.date, dto.time, dto.timezone);
+    const durationMinutes = DURATION_MINUTES[dto.duration];
 
     if (scheduledAtUtc.getTime() <= Date.now()) {
       throw new BadRequestException(
@@ -43,13 +44,15 @@ export class AppointmentsService {
       );
     }
 
+    await this.assertSlotAvailable(scheduledAtUtc, durationMinutes);
+
     const appointment = await this.prisma.appointment.create({
       data: {
         contactName: dto.contactName.trim(),
         companyName: dto.companyName.trim(),
         email: dto.email.trim().toLowerCase(),
         appointmentType: APPOINTMENT_TYPE_ENUM[dto.appointmentType],
-        durationMinutes: DURATION_MINUTES[dto.duration],
+        durationMinutes,
         scheduledAtUtc,
         prospectTimezone: dto.timezone,
       },
@@ -129,6 +132,12 @@ export class AppointmentsService {
     if (newScheduledAtUtc.getTime() === appointment.scheduledAtUtc.getTime()) {
       throw new BadRequestException("No change in the appointment time");
     }
+
+    await this.assertSlotAvailable(
+      newScheduledAtUtc,
+      appointment.durationMinutes,
+      appointment.id,
+    );
 
     const updated = await this.prisma.appointment.update({
       where: { id: appointment.id },
@@ -249,6 +258,46 @@ export class AppointmentsService {
       status === "NO_SHOW"
     ) {
       throw new ConflictException("This appointment can no longer be changed");
+    }
+  }
+
+  /**
+   * Blocks overlapping active bookings (CONFIRMED / RESCHEDULED).
+   * Discrete slots still collide when durations overlap (e.g. 60m @ 10:00
+   * vs 30m @ 10:30).
+   */
+  private async assertSlotAvailable(
+    scheduledAtUtc: Date,
+    durationMinutes: number,
+    excludeId?: string,
+  ): Promise<void> {
+    const startMs = scheduledAtUtc.getTime();
+    const endMs = startMs + durationMinutes * 60_000;
+    // Widest bookable duration is 60m — pull neighbors that could overlap.
+    const windowStart = new Date(startMs - 60 * 60_000);
+    const windowEnd = new Date(endMs);
+
+    const candidates = await this.prisma.appointment.findMany({
+      where: {
+        status: { in: ["CONFIRMED", "RESCHEDULED"] },
+        scheduledAtUtc: { gte: windowStart, lt: windowEnd },
+        ...(excludeId ? { id: { not: excludeId } } : {}),
+      },
+      select: {
+        id: true,
+        scheduledAtUtc: true,
+        durationMinutes: true,
+      },
+    });
+
+    const conflict = candidates.some((row) => {
+      const rowStart = row.scheduledAtUtc.getTime();
+      const rowEnd = rowStart + row.durationMinutes * 60_000;
+      return rowStart < endMs && rowEnd > startMs;
+    });
+
+    if (conflict) {
+      throw new ConflictException("This time slot is already booked");
     }
   }
 

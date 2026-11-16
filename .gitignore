@@ -4,6 +4,9 @@
 # build
 dist/
 
+# prisma generated client (rebuilt by `prisma generate`)
+/src/generated/
+
 # env files (keep .env.example tracked)
 .env
 .env.*
@@ -18,3 +21,6 @@ yarn-error.log*
 # misc
 .DS_Store
 *.pem
+
+# private client-edition report uploads (Chunk 8)
+/storage/

@@ -28,8 +28,9 @@ export class TransformInterceptor<T> implements NestInterceptor<
   ): Observable<ApiResponse<T>> {
     const request = context.switchToHttp().getRequest<Request>();
 
-    // File downloads (e.g. .ics calendar files) must stay raw, not enveloped
-    if (request.originalUrl.split("?")[0].endsWith(".ics")) {
+    // File downloads must stay raw, not JSON-enveloped.
+    const path = request.originalUrl.split("?")[0];
+    if (path.endsWith(".ics") || path.endsWith("/download")) {
       return next.handle() as unknown as Observable<ApiResponse<T>>;
     }
 

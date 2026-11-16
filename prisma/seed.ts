@@ -3,6 +3,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcrypt";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { Role } from "../src/generated/prisma/enums";
+import { seedAssessments } from "./assessments-seed";
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -40,6 +41,8 @@ async function main() {
     });
     console.log(`Super Admin created: ${admin.email}`);
   }
+
+  await seedAssessments(prisma);
 
   await prisma.$disconnect();
 }

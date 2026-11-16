@@ -75,6 +75,36 @@ export type AdminRefreshToken = Prisma.AdminRefreshTokenModel
  */
 export type Appointment = Prisma.AppointmentModel
 /**
+ * Model BaselineMetric
+ * 
+ */
+export type BaselineMetric = Prisma.BaselineMetricModel
+/**
+ * Model Improvement
+ * 
+ */
+export type Improvement = Prisma.ImprovementModel
+/**
+ * Model KpiMeasurement
+ * 
+ */
+export type KpiMeasurement = Prisma.KpiMeasurementModel
+/**
+ * Model ImplementationMilestone
+ * 
+ */
+export type ImplementationMilestone = Prisma.ImplementationMilestoneModel
+/**
+ * Model EngagementReport
+ * 
+ */
+export type EngagementReport = Prisma.EngagementReportModel
+/**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = Prisma.AuditLogModel
+/**
  * Model AppointmentLog
  * 
  */
@@ -84,6 +114,16 @@ export type AppointmentLog = Prisma.AppointmentLogModel
  * 
  */
 export type EmailDelivery = Prisma.EmailDeliveryModel
+/**
+ * Model Assessment
+ * 
+ */
+export type Assessment = Prisma.AssessmentModel
+/**
+ * Model AssessmentInstance
+ * 
+ */
+export type AssessmentInstance = Prisma.AssessmentInstanceModel
 /**
  * Model Lead
  * 

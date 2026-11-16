@@ -22,10 +22,12 @@ import {
 } from "node:crypto";
 import { OAuth2Client, type TokenPayload } from "google-auth-library";
 import ms, { type StringValue } from "ms";
+import { AuditService } from "../../common/audit/audit.service";
 import type { AdminAuth } from "../../common/interfaces/admin-auth.interface";
 import type { JwtPayload } from "../../common/interfaces/jwt-payload.interface";
 import { PrismaService } from "../../database/prisma.service";
 import {
+  AuditAction,
   AuthCodePurpose,
   ClientAccessStatus,
   OAuthProvider,
@@ -55,7 +57,7 @@ const GENERIC_SIGNUP_RESEND_MESSAGE =
   "If signup is still awaiting email verification, a code will be sent. If your email is already verified, no new email is needed.";
 const ACCOUNT_NOT_PROVISIONED_MESSAGE =
   "This account must be created by the Master Admin before sign-in.";
-const CODE_TTL_MS = 10 * 60 * 1000;
+const CODE_TTL_MS = 5 * 60 * 1000;
 const CODE_RESEND_INTERVAL_MS = 60 * 1000;
 const CODE_MAX_ATTEMPTS = 5;
 const RESET_TOKEN_TTL_MS = 15 * 60 * 1000;
@@ -74,6 +76,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     config: ConfigService,
     private readonly mailService: MailService,
+    private readonly audit: AuditService,
   ) {
     this.accessExpiresIn = (config.get<string>("jwt.expiresIn") ??
       "15m") as StringValue;
@@ -118,20 +121,15 @@ export class AuthService {
       email,
       dto.purpose,
     );
-    if (!delivery.sent && dto.purpose === AuthCodePurpose.SIGNUP) {
+    if (!delivery.sent) {
       throw new HttpException(
         `A recent code is still valid. Wait ${delivery.retryAfterSeconds} seconds before requesting another.`,
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
     return {
-      message:
-        dto.purpose === AuthCodePurpose.SIGNUP
-          ? "The email provider accepted a new verification-code email. Check your inbox and spam folder."
-          : GENERIC_AUTH_MESSAGE,
-      ...(dto.purpose === AuthCodePurpose.SIGNUP
-        ? { retryAfterSeconds: delivery.retryAfterSeconds }
-        : {}),
+      message: "A new verification code has been sent. Check your inbox.",
+      retryAfterSeconds: delivery.retryAfterSeconds,
     };
   }
 
@@ -420,7 +418,7 @@ export class AuthService {
         data: { emailVerifiedAt: new Date() },
       });
     }
-    await this.assertAccountAccess(account.id, account.role);
+    await this.assertAccountAccess(account.id, account.role, { audit: true });
     await this.prisma.adminUser.update({
       where: { id: account.id },
       data: { lastLoginAt: new Date() },
@@ -495,17 +493,31 @@ export class AuthService {
       );
     }
 
+    await this.audit.write({
+      actorId: reviewerId,
+      action:
+        decision === "APPROVE"
+          ? AuditAction.ACCESS_ALLOW
+          : AuditAction.ACCESS_DENY,
+      targetType: "ClientAccessRequest",
+      targetId: requestId,
+      clientId: request.accountId,
+    });
+
     return { reviewed: true as const };
   }
 
-  async deactivateClient(id: string): Promise<{ isActive: false }> {
+  async deactivateClient(
+    id: string,
+    actorId: string,
+  ): Promise<{ isActive: false }> {
     const request = await this.prisma.clientAccessRequest.findFirst({
       where: {
         accountId: id,
         status: ClientAccessStatus.APPROVED,
         account: { role: Role.USER, isActive: true },
       },
-      select: { accountId: true },
+      select: { accountId: true, id: true },
     });
     if (!request) {
       throw new NotFoundException("Approved active client not found");
@@ -522,10 +534,30 @@ export class AuthService {
         data: { revokedAt: now },
       }),
     ]);
+
+    await this.audit.write({
+      actorId,
+      action: AuditAction.ACCESS_DENY,
+      targetType: "ClientAccessRequest",
+      targetId: request.id,
+      clientId: id,
+    });
+
     return { isActive: false };
   }
 
-  async restoreClient(id: string): Promise<{ isActive: true }> {
+  async restoreClient(
+    id: string,
+    actorId: string,
+  ): Promise<{ isActive: true }> {
+    const request = await this.prisma.clientAccessRequest.findFirst({
+      where: {
+        accountId: id,
+        status: ClientAccessStatus.APPROVED,
+        account: { role: Role.USER, isActive: false },
+      },
+      select: { id: true },
+    });
     const result = await this.prisma.adminUser.updateMany({
       where: {
         id,
@@ -535,9 +567,18 @@ export class AuthService {
       },
       data: { isActive: true },
     });
-    if (result.count !== 1) {
+    if (result.count !== 1 || !request) {
       throw new NotFoundException("Revoked approved client not found");
     }
+
+    await this.audit.write({
+      actorId,
+      action: AuditAction.ACCESS_ALLOW,
+      targetType: "ClientAccessRequest",
+      targetId: request.id,
+      clientId: id,
+    });
+
     return { isActive: true };
   }
 
@@ -686,7 +727,7 @@ export class AuthService {
 
     if (!admin) {
       this.logFailedAttempt(email, ip);
-      throw new UnauthorizedException("Invalid credentials");
+      throw new UnauthorizedException("Incorrect email or password.");
     }
 
     const validPassword =
@@ -699,14 +740,14 @@ export class AuthService {
       !this.isSupportedLoginRole(admin.role)
     ) {
       this.logFailedAttempt(email, ip);
-      throw new UnauthorizedException("Invalid credentials");
+      throw new UnauthorizedException("Incorrect email or password.");
     }
 
     if (!category) {
       throw new UnauthorizedException("Select the account type to sign in.");
     }
     this.assertLoginCategory(admin, category);
-    await this.assertAccountAccess(admin.id, admin.role);
+    await this.assertAccountAccess(admin.id, admin.role, { audit: true });
 
     await this.prisma.adminUser.update({
       where: { id: admin.id },
@@ -717,7 +758,7 @@ export class AuthService {
   }
 
   async login(admin: AdminAuth): Promise<LoginResult> {
-    await this.assertAccountAccess(admin.id, admin.role);
+    await this.assertAccountAccess(admin.id, admin.role, { audit: true });
     const refreshToken = this.generateRefreshToken();
     const session = await this.prisma.adminRefreshToken.create({
       data: {
@@ -1023,30 +1064,47 @@ export class AuthService {
     account: { role: Role; position: StaffPosition | null },
     category: GoogleLoginCategory,
   ): void {
-    const expectedCategory: LoginCategory | null =
-      account.role === Role.USER
-        ? "CLIENT"
-        : account.role === Role.SALES_REPRESENTATIVE
-          ? account.position
-          : account.role === Role.SUPER_ADMIN
-            ? "MASTER_ADMIN"
-            : null;
-    if (expectedCategory === null || category !== expectedCategory) {
-      throw new ForbiddenException(
-        "This account does not match the selected login type.",
-      );
+    if (account.role === Role.USER) {
+      if (category === "CLIENT") return;
+    } else if (account.role === Role.SUPER_ADMIN) {
+      if (category === "MASTER_ADMIN") return;
+    } else if (account.role === Role.SALES_REPRESENTATIVE) {
+      // Generic "Sales Representatives" or the exact assigned staff position.
+      if (
+        category === "SALES_REPRESENTATIVE" ||
+        (account.position !== null && category === account.position)
+      ) {
+        return;
+      }
     }
+
+    // Same copy as bad credentials — avoid leaking role / category details.
+    throw new UnauthorizedException("Incorrect email or password.");
   }
 
   private async assertAccountAccess(
     accountId: string,
     role: Role,
+    options: { audit?: boolean } = {},
   ): Promise<void> {
     if (role !== Role.USER) return;
     const request = await this.prisma.clientAccessRequest.findUnique({
       where: { accountId },
-      select: { status: true },
+      select: { id: true, status: true },
     });
+    if (request?.status === ClientAccessStatus.APPROVED) return;
+
+    // Audit login-time denials only — skip /me + refresh to avoid log spam.
+    if (options.audit) {
+      await this.audit.write({
+        actorId: accountId,
+        action: AuditAction.ACCESS_DENY,
+        targetType: "ClientAccessRequest",
+        targetId: request?.id ?? accountId,
+        clientId: accountId,
+      });
+    }
+
     if (request?.status === ClientAccessStatus.PENDING) {
       throw new ForbiddenException(
         "Your access request is pending Super Admin approval.",
@@ -1057,11 +1115,9 @@ export class AuthService {
         "Your access request was not approved. Contact the Super Admin for assistance.",
       );
     }
-    if (request?.status !== ClientAccessStatus.APPROVED) {
-      throw new ForbiddenException(
-        "This account has no approved client access request.",
-      );
-    }
+    throw new ForbiddenException(
+      "This account has no approved client access request.",
+    );
   }
 
   private hashToken(token: string): string {

@@ -23,7 +23,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
-import { Throttle } from "@nestjs/throttler";
+import { SkipThrottle, Throttle } from "@nestjs/throttler";
 import type { Request, Response } from "express";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import {
@@ -223,7 +223,7 @@ export class AuthController {
 
   @Post("refresh")
   @HttpCode(200)
-  @Throttle({ default: { limit: 20, ttl: 60_000 } })
+  @SkipThrottle()
   @ApiOperation({
     summary: "Rotate the refresh-token cookie and issue a new access token",
   })
@@ -269,6 +269,7 @@ export class AuthController {
   }
 
   @Get("me")
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard)
   @ApiSecurity("access-cookie")
   @ApiOperation({ summary: "Get current authenticated account profile" })
@@ -332,8 +333,11 @@ export class AuthController {
   @ApiOperation({
     summary: "Revoke approved client access and revoke all active sessions",
   })
-  deactivateClient(@Param("id", ParseUUIDPipe) id: string) {
-    return this.authService.deactivateClient(id);
+  deactivateClient(
+    @Param("id", ParseUUIDPipe) id: string,
+    @CurrentUser() admin: AdminAuth,
+  ) {
+    return this.authService.deactivateClient(id, admin.id);
   }
 
   @Post("admin/clients/:id/access/restore")
@@ -341,8 +345,11 @@ export class AuthController {
   @UseGuards(JwtAuthGuard, SuperAdminGuard)
   @ApiSecurity("access-cookie")
   @ApiOperation({ summary: "Restore access for a revoked approved client" })
-  restoreClient(@Param("id", ParseUUIDPipe) id: string) {
-    return this.authService.restoreClient(id);
+  restoreClient(
+    @Param("id", ParseUUIDPipe) id: string,
+    @CurrentUser() admin: AdminAuth,
+  ) {
+    return this.authService.restoreClient(id, admin.id);
   }
 
   @Post("admin/representatives")

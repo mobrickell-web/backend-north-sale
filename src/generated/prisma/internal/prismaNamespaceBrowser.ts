@@ -58,8 +58,16 @@ export const ModelName = {
   PasswordResetToken: 'PasswordResetToken',
   AdminRefreshToken: 'AdminRefreshToken',
   Appointment: 'Appointment',
+  BaselineMetric: 'BaselineMetric',
+  Improvement: 'Improvement',
+  KpiMeasurement: 'KpiMeasurement',
+  ImplementationMilestone: 'ImplementationMilestone',
+  EngagementReport: 'EngagementReport',
+  AuditLog: 'AuditLog',
   AppointmentLog: 'AppointmentLog',
   EmailDelivery: 'EmailDelivery',
+  Assessment: 'Assessment',
+  AssessmentInstance: 'AssessmentInstance',
   Lead: 'Lead',
   AssessmentResult: 'AssessmentResult'
 } as const
@@ -189,6 +197,100 @@ export const AppointmentScalarFieldEnum = {
 export type AppointmentScalarFieldEnum = (typeof AppointmentScalarFieldEnum)[keyof typeof AppointmentScalarFieldEnum]
 
 
+export const BaselineMetricScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  metricKey: 'metricKey',
+  label: 'label',
+  value: 'value',
+  unit: 'unit',
+  measuredAt: 'measuredAt',
+  source: 'source',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BaselineMetricScalarFieldEnum = (typeof BaselineMetricScalarFieldEnum)[keyof typeof BaselineMetricScalarFieldEnum]
+
+
+export const ImprovementScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  title: 'title',
+  description: 'description',
+  ownerName: 'ownerName',
+  ownerSide: 'ownerSide',
+  status: 'status',
+  targetDate: 'targetDate',
+  agreedAt: 'agreedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ImprovementScalarFieldEnum = (typeof ImprovementScalarFieldEnum)[keyof typeof ImprovementScalarFieldEnum]
+
+
+export const KpiMeasurementScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  metricKey: 'metricKey',
+  value: 'value',
+  measuredAt: 'measuredAt',
+  target: 'target',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type KpiMeasurementScalarFieldEnum = (typeof KpiMeasurementScalarFieldEnum)[keyof typeof KpiMeasurementScalarFieldEnum]
+
+
+export const ImplementationMilestoneScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  title: 'title',
+  startDate: 'startDate',
+  dueDate: 'dueDate',
+  ownerName: 'ownerName',
+  ownerSide: 'ownerSide',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ImplementationMilestoneScalarFieldEnum = (typeof ImplementationMilestoneScalarFieldEnum)[keyof typeof ImplementationMilestoneScalarFieldEnum]
+
+
+export const EngagementReportScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  title: 'title',
+  type: 'type',
+  period: 'period',
+  publishedAt: 'publishedAt',
+  fileKey: 'fileKey',
+  originalFileName: 'originalFileName',
+  contentType: 'contentType',
+  summary: 'summary',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EngagementReportScalarFieldEnum = (typeof EngagementReportScalarFieldEnum)[keyof typeof EngagementReportScalarFieldEnum]
+
+
+export const AuditLogScalarFieldEnum = {
+  id: 'id',
+  actorId: 'actorId',
+  action: 'action',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  clientId: 'clientId',
+  at: 'at'
+} as const
+
+export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
 export const AppointmentLogScalarFieldEnum = {
   id: 'id',
   appointmentId: 'appointmentId',
@@ -218,6 +320,40 @@ export const EmailDeliveryScalarFieldEnum = {
 } as const
 
 export type EmailDeliveryScalarFieldEnum = (typeof EmailDeliveryScalarFieldEnum)[keyof typeof EmailDeliveryScalarFieldEnum]
+
+
+export const AssessmentScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  title: 'title',
+  status: 'status',
+  isClientPrimary: 'isClientPrimary',
+  document: 'document',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentScalarFieldEnum = (typeof AssessmentScalarFieldEnum)[keyof typeof AssessmentScalarFieldEnum]
+
+
+export const AssessmentInstanceScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  clientId: 'clientId',
+  status: 'status',
+  answers: 'answers',
+  result: 'result',
+  completedBy: 'completedBy',
+  onBehalfOf: 'onBehalfOf',
+  submittedAt: 'submittedAt',
+  onBehalfTokenHash: 'onBehalfTokenHash',
+  tokenExpiresAt: 'tokenExpiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentInstanceScalarFieldEnum = (typeof AssessmentInstanceScalarFieldEnum)[keyof typeof AssessmentInstanceScalarFieldEnum]
 
 
 export const LeadScalarFieldEnum = {
@@ -264,6 +400,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {

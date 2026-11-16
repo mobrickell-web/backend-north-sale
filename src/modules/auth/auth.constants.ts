@@ -10,6 +10,7 @@ export const STAFF_POSITIONS = [
 /** Access types accepted by the password login form. */
 export const LOGIN_CATEGORIES = [
   "CLIENT",
+  "SALES_REPRESENTATIVE",
   ...STAFF_POSITIONS,
   "MASTER_ADMIN",
 ] as const;

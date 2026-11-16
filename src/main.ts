@@ -7,6 +7,7 @@ import { AppModule } from "./app.module";
 import { AllExceptionsFilter } from "./common/filters/global-exception.filter";
 import { TransformInterceptor } from "./common/interceptors/transform.interceptor";
 import { authCookieOriginMiddleware } from "./common/middleware/auth-cookie-origin.middleware";
+import { resolveAllowedOrigins } from "./common/utils/cors-origins";
 
 async function bootstrap() {
   // Webhook signatures cover the exact bytes sent; re-serializing parsed JSON
@@ -39,23 +40,21 @@ async function bootstrap() {
       { path: "webhooks/sendgrid", method: RequestMethod.POST },
     ],
   });
-  const allowedOrigins = [
-    ...(process.env.CORS_ORIGINS ?? "").split(","),
-    process.env.FRONTEND_URL ?? "http://localhost:3000",
-    process.env.APP_URL ?? "http://localhost:3001",
-    ...(process.env.NODE_ENV === "production"
-      ? []
-      : [
-          `http://localhost:${process.env.PORT ?? "3001"}`,
-          `http://127.0.0.1:${process.env.PORT ?? "3001"}`,
-        ]),
-  ]
-    .map((origin) => origin.trim())
-    .filter(Boolean)
-    .map((origin) => new URL(origin).origin);
+  // FRONTEND_URL / CORS_ORIGINS expand to apex + www so either hostname works.
+  const allowedOrigins = resolveAllowedOrigins({
+    corsOrigins: process.env.CORS_ORIGINS,
+    frontendUrl: process.env.FRONTEND_URL,
+    appUrl: process.env.APP_URL,
+    nodeEnv: process.env.NODE_ENV,
+    port: process.env.PORT,
+  });
   const allowedOriginSet = new Set(allowedOrigins);
   app.use(authCookieOriginMiddleware(allowedOriginSet));
   app.enableCors({ origin: allowedOrigins, credentials: true });
+  Logger.log(
+    `CORS allowlist (${allowedOrigins.length}): ${allowedOrigins.join(", ")}`,
+    "Bootstrap",
+  );
 
   // The document describes every endpoint and cookie contract, so it is only
   // ever mounted on a developer machine.
