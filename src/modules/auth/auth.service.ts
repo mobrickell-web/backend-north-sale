@@ -40,6 +40,7 @@ import type { ResendCodeDto, VerifyCodeDto } from "./dto/email-auth.dto";
 import type { UpdatePasswordDto } from "./dto/update-password.dto";
 import type { CreateRepresentativeDto } from "./dto/create-representative.dto";
 import type { CreateClientDto } from "./dto/create-client.dto";
+import type { SignupDto } from "./dto/signup.dto";
 import type { GoogleLoginCategory, LoginCategory } from "./auth.constants";
 
 export interface LoginResult {
@@ -55,6 +56,8 @@ const GENERIC_AUTH_MESSAGE =
   "If the account is eligible, a verification code will be sent.";
 const GENERIC_SIGNUP_RESEND_MESSAGE =
   "If signup is still awaiting email verification, a code will be sent. If your email is already verified, no new email is needed.";
+const SIGNUP_SUCCESS_MESSAGE =
+  "Verification code sent to your email. Please verify your email to submit your access request.";
 const ACCOUNT_NOT_PROVISIONED_MESSAGE =
   "This account must be created by the Master Admin before sign-in.";
 const CODE_TTL_MS = 5 * 60 * 1000;
@@ -84,6 +87,61 @@ export class AuthService {
       "7d") as StringValue;
     this.authCodeSecret = config.getOrThrow<string>("jwt.secret");
     this.googleClientId = config.get<string>("google.clientId");
+  }
+
+  async signup(dto: SignupDto): Promise<{ message: string }> {
+    this.assertPasswordLength(dto.password);
+    if (!dto.name.trim()) {
+      throw new BadRequestException("Name is required");
+    }
+    const email = this.normalizeEmail(dto.email);
+    const existing = await this.prisma.adminUser.findUnique({
+      where: { email },
+    });
+
+    // Same reply whether or not the email exists, so the form cannot be used
+    // to find out who has an account.
+    if (existing) {
+      if (
+        existing.role === Role.USER &&
+        existing.isActive &&
+        !existing.emailVerifiedAt
+      ) {
+        await this.sendVerificationCode(
+          existing.id,
+          email,
+          AuthCodePurpose.SIGNUP,
+        );
+      }
+      return { message: SIGNUP_SUCCESS_MESSAGE };
+    }
+
+    const passwordHash = await bcrypt.hash(dto.password, 12);
+    let account;
+    try {
+      account = await this.prisma.adminUser.create({
+        data: {
+          name: dto.name.trim(),
+          email,
+          passwordHash,
+          role: Role.USER,
+          emailVerifiedAt: null,
+          // PENDING by default: no access until the Master Admin approves.
+          clientAccessRequest: { create: {} },
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        return { message: SIGNUP_SUCCESS_MESSAGE };
+      }
+      throw error;
+    }
+
+    await this.sendVerificationCode(account.id, email, AuthCodePurpose.SIGNUP);
+    return { message: SIGNUP_SUCCESS_MESSAGE };
   }
 
   async resendCode(
@@ -271,7 +329,7 @@ export class AuthService {
       ...(resetToken ? { resetToken } : {}),
       message:
         dto.purpose === AuthCodePurpose.SIGNUP
-          ? "Email verified successfully. Your account is now active."
+          ? "Email verified. Your access request is now waiting for Master Admin approval."
           : "Code verified. Use the reset token to set a new password.",
     };
   }
@@ -405,9 +463,42 @@ export class AuthService {
           },
         });
       } else {
-        // Google sign-in never creates accounts: only accounts the Master
-        // Admin has already provisioned may sign in.
-        throw new UnauthorizedException(ACCOUNT_NOT_PROVISIONED_MESSAGE);
+        // Staff accounts are only ever created by the Master Admin.
+        if (category !== "CLIENT") {
+          throw new UnauthorizedException(ACCOUNT_NOT_PROVISIONED_MESSAGE);
+        }
+
+        // A new Google client becomes a PENDING access request; the access
+        // check below keeps them out until the Master Admin approves it.
+        try {
+          account = await this.prisma.adminUser.create({
+            data: {
+              name: payload.name?.trim().slice(0, 120) || email,
+              email,
+              role: Role.USER,
+              isActive: true,
+              emailVerifiedAt: new Date(),
+              oauthIdentities: {
+                create: {
+                  provider: OAuthProvider.GOOGLE,
+                  providerAccountId: payload.sub,
+                  providerEmail: email,
+                },
+              },
+              clientAccessRequest: { create: {} },
+            },
+          });
+        } catch (error) {
+          if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === "P2002"
+          ) {
+            throw new ConflictException(
+              "This Google account is already registered. Please sign in again.",
+            );
+          }
+          throw error;
+        }
       }
     }
 

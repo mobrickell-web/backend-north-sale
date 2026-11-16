@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   HttpStatus,
   HttpCode,
@@ -15,9 +14,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import {
-  ApiBody,
   ApiConflictResponse,
-  ApiForbiddenResponse,
   ApiOperation,
   ApiSecurity,
   ApiTags,
@@ -130,22 +127,18 @@ export class AuthController {
   }
 
   /**
-   * Self-signup is disabled: client accounts are created by the Master Admin.
-   * The route is kept so older clients receive a clear message.
+   * Public client access request. It creates a USER account whose access
+   * request stays PENDING until the Master Admin approves it, so signing up
+   * never grants access on its own.
    */
   @Post("signup")
+  @HttpCode(HttpStatus.ACCEPTED)
   @Throttle({ default: { limit: 3, ttl: 60_000 } })
   @ApiOperation({
-    summary: "Disabled — client accounts are created by the Master Admin",
+    summary: "Request client access and send an email verification code",
   })
-  @ApiBody({ type: SignupDto, required: false })
-  @ApiForbiddenResponse({
-    description: "Client accounts are created by the Master Admin.",
-  })
-  signup(): never {
-    throw new ForbiddenException(
-      "Client accounts are created by the Master Admin.",
-    );
+  signup(@Body() dto: SignupDto): Promise<{ message: string }> {
+    return this.authService.signup(dto);
   }
 
   @Post("verify-code")
