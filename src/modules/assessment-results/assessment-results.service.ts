@@ -7,6 +7,8 @@ import type { AdminAuth } from "../../common/interfaces/admin-auth.interface";
 import { PrismaService } from "../../database/prisma.service";
 import { Prisma } from "../../generated/prisma/client";
 import { Role } from "../../generated/prisma/enums";
+import { AuthService, type LoginResult } from "../auth/auth.service";
+import type { ClaimAssessmentResultDto } from "./dto/claim-assessment-result.dto";
 import type { CreateAssessmentResultDto } from "./dto/create-assessment-result.dto";
 
 const SUMMARY_SELECT = {
@@ -21,7 +23,10 @@ const SUMMARY_SELECT = {
 
 @Injectable()
 export class AssessmentResultsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auth: AuthService,
+  ) {}
 
   async create(
     user: AdminAuth,
@@ -50,6 +55,46 @@ export class AssessmentResultsService {
       },
       select: { id: true },
     });
+  }
+
+  /**
+   * Public free assessment: provision/approve client, store results, issue session.
+   */
+  async claim(
+    dto: ClaimAssessmentResultDto,
+  ): Promise<{ id: string; session: LoginResult }> {
+    const firstName = dto.firstName.trim();
+    if (!firstName) {
+      throw new BadRequestException("First name is required");
+    }
+    if (dto.maxScore < dto.overallScore) {
+      throw new BadRequestException(
+        "maxScore must be greater than or equal to overallScore",
+      );
+    }
+
+    const account = await this.auth.upsertApprovedClientFromAssessment({
+      name: firstName,
+      email: dto.email,
+      password: dto.password,
+    });
+
+    const created = await this.prisma.assessmentResult.create({
+      data: {
+        assessment: dto.assessment,
+        firstName,
+        email: this.normalizeEmail(dto.email),
+        overallScore: dto.overallScore,
+        maxScore: dto.maxScore,
+        answers: dto.answers as Prisma.InputJsonObject,
+        result: dto.result as Prisma.InputJsonObject,
+        submittedById: account.id,
+      },
+      select: { id: true },
+    });
+
+    const session = await this.auth.login(account);
+    return { id: created.id, session };
   }
 
   listMine(user: AdminAuth) {

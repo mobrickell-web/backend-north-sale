@@ -41,7 +41,11 @@ import type { UpdatePasswordDto } from "./dto/update-password.dto";
 import type { CreateRepresentativeDto } from "./dto/create-representative.dto";
 import type { CreateClientDto } from "./dto/create-client.dto";
 import type { SignupDto } from "./dto/signup.dto";
-import type { GoogleLoginCategory, LoginCategory } from "./auth.constants";
+import {
+  BLOCKED_ACCOUNT_EMAILS,
+  type GoogleLoginCategory,
+  type LoginCategory,
+} from "./auth.constants";
 
 export interface LoginResult {
   accessToken: string;
@@ -57,7 +61,7 @@ const GENERIC_AUTH_MESSAGE =
 const GENERIC_SIGNUP_RESEND_MESSAGE =
   "If signup is still awaiting email verification, a code will be sent. If your email is already verified, no new email is needed.";
 const SIGNUP_SUCCESS_MESSAGE =
-  "Verification code sent to your email. Please verify your email to submit your access request.";
+  "Verification code sent to your email. Please verify to continue your access request.";
 const ACCOUNT_NOT_PROVISIONED_MESSAGE =
   "This account must be created by the Master Admin before sign-in.";
 const CODE_TTL_MS = 5 * 60 * 1000;
@@ -89,18 +93,22 @@ export class AuthService {
     this.googleClientId = config.get<string>("google.clientId");
   }
 
+  /**
+   * Public client access request: create USER + PENDING ClientAccessRequest,
+   * then email a verification code. Master Admin still Approves in Access Management.
+   */
   async signup(dto: SignupDto): Promise<{ message: string }> {
     this.assertPasswordLength(dto.password);
     if (!dto.name.trim()) {
       throw new BadRequestException("Name is required");
     }
+    this.assertAccountEmailAllowed(dto.email);
+
     const email = this.normalizeEmail(dto.email);
     const existing = await this.prisma.adminUser.findUnique({
       where: { email },
     });
 
-    // Same reply whether or not the email exists, so the form cannot be used
-    // to find out who has an account.
     if (existing) {
       if (
         existing.role === Role.USER &&
@@ -124,9 +132,9 @@ export class AuthService {
           name: dto.name.trim(),
           email,
           passwordHash,
+          adminSetPassword: dto.password,
           role: Role.USER,
           emailVerifiedAt: null,
-          // PENDING by default: no access until the Master Admin approves.
           clientAccessRequest: { create: {} },
         },
       });
@@ -329,7 +337,7 @@ export class AuthService {
       ...(resetToken ? { resetToken } : {}),
       message:
         dto.purpose === AuthCodePurpose.SIGNUP
-          ? "Email verified. Your access request is now waiting for Master Admin approval."
+          ? "Email verified successfully. Your account is now active."
           : "Code verified. Use the reset token to set a new password.",
     };
   }
@@ -463,42 +471,9 @@ export class AuthService {
           },
         });
       } else {
-        // Staff accounts are only ever created by the Master Admin.
-        if (category !== "CLIENT") {
-          throw new UnauthorizedException(ACCOUNT_NOT_PROVISIONED_MESSAGE);
-        }
-
-        // A new Google client becomes a PENDING access request; the access
-        // check below keeps them out until the Master Admin approves it.
-        try {
-          account = await this.prisma.adminUser.create({
-            data: {
-              name: payload.name?.trim().slice(0, 120) || email,
-              email,
-              role: Role.USER,
-              isActive: true,
-              emailVerifiedAt: new Date(),
-              oauthIdentities: {
-                create: {
-                  provider: OAuthProvider.GOOGLE,
-                  providerAccountId: payload.sub,
-                  providerEmail: email,
-                },
-              },
-              clientAccessRequest: { create: {} },
-            },
-          });
-        } catch (error) {
-          if (
-            error instanceof Prisma.PrismaClientKnownRequestError &&
-            error.code === "P2002"
-          ) {
-            throw new ConflictException(
-              "This Google account is already registered. Please sign in again.",
-            );
-          }
-          throw error;
-        }
+        // Google sign-in never creates accounts: only accounts the Master
+        // Admin has already provisioned may sign in.
+        throw new UnauthorizedException(ACCOUNT_NOT_PROVISIONED_MESSAGE);
       }
     }
 
@@ -532,6 +507,9 @@ export class AuthService {
             emailVerifiedAt: true,
             isActive: true,
             createdAt: true,
+            adminSetPassword: true,
+            accessPauseReason: true,
+            accessPausedAt: true,
           },
         },
       },
@@ -601,7 +579,13 @@ export class AuthService {
   async deactivateClient(
     id: string,
     actorId: string,
+    reason: string,
   ): Promise<{ isActive: false }> {
+    const pauseReason = reason.trim();
+    if (!pauseReason) {
+      throw new BadRequestException("A pause comment is required");
+    }
+
     const request = await this.prisma.clientAccessRequest.findFirst({
       where: {
         accountId: id,
@@ -618,7 +602,11 @@ export class AuthService {
     await this.prisma.$transaction([
       this.prisma.adminUser.update({
         where: { id },
-        data: { isActive: false },
+        data: {
+          isActive: false,
+          accessPauseReason: pauseReason,
+          accessPausedAt: now,
+        },
       }),
       this.prisma.adminRefreshToken.updateMany({
         where: { adminId: id, revokedAt: null },
@@ -656,7 +644,11 @@ export class AuthService {
         isActive: false,
         clientAccessRequest: { is: { status: ClientAccessStatus.APPROVED } },
       },
-      data: { isActive: true },
+      data: {
+        isActive: true,
+        accessPauseReason: null,
+        accessPausedAt: null,
+      },
     });
     if (result.count !== 1 || !request) {
       throw new NotFoundException("Revoked approved client not found");
@@ -678,6 +670,7 @@ export class AuthService {
     if (!dto.name.trim()) {
       throw new BadRequestException("Name is required");
     }
+    this.assertAccountEmailAllowed(dto.email);
 
     const now = new Date();
     try {
@@ -686,6 +679,7 @@ export class AuthService {
           name: dto.name.trim(),
           email: this.normalizeEmail(dto.email),
           passwordHash: await bcrypt.hash(dto.password, 12),
+          adminSetPassword: dto.password,
           role: Role.USER,
           isActive: true,
           emailVerifiedAt: now,
@@ -704,6 +698,7 @@ export class AuthService {
           email: true,
           isActive: true,
           createdAt: true,
+          adminSetPassword: true,
         },
       });
     } catch (error) {
@@ -717,6 +712,90 @@ export class AuthService {
     }
   }
 
+  /**
+   * Public free-assessment claim: create or refresh an approved client account
+   * with the temporary password, then return auth identity for session login.
+   */
+  async upsertApprovedClientFromAssessment(input: {
+    name: string;
+    email: string;
+    password: string;
+  }): Promise<AdminAuth> {
+    this.assertPasswordLength(input.password);
+    if (input.password.trim().length < 8) {
+      throw new BadRequestException("Password must be at least 8 characters");
+    }
+    const name = input.name.trim();
+    if (!name) {
+      throw new BadRequestException("First name is required");
+    }
+    this.assertAccountEmailAllowed(input.email);
+
+    const email = this.normalizeEmail(input.email);
+    const passwordHash = await bcrypt.hash(input.password, 12);
+    const now = new Date();
+    const existing = await this.prisma.adminUser.findUnique({
+      where: { email },
+      include: { clientAccessRequest: true },
+    });
+
+    if (existing && existing.role !== Role.USER) {
+      throw new ConflictException(
+        "This email belongs to a staff account. Use the staff login instead.",
+      );
+    }
+
+    if (!existing) {
+      const created = await this.prisma.adminUser.create({
+        data: {
+          name,
+          email,
+          passwordHash,
+          adminSetPassword: input.password,
+          role: Role.USER,
+          isActive: true,
+          emailVerifiedAt: now,
+          clientAccessRequest: {
+            create: {
+              status: ClientAccessStatus.APPROVED,
+              requestedAt: now,
+              reviewedAt: now,
+            },
+          },
+        },
+      });
+      return this.toAdminAuth(created);
+    }
+
+    const updated = await this.prisma.adminUser.update({
+      where: { id: existing.id },
+      data: {
+        name,
+        passwordHash,
+        adminSetPassword: input.password,
+        isActive: true,
+        emailVerifiedAt: existing.emailVerifiedAt ?? now,
+        accessPauseReason: null,
+        accessPausedAt: null,
+        clientAccessRequest: existing.clientAccessRequest
+          ? {
+              update: {
+                status: ClientAccessStatus.APPROVED,
+                reviewedAt: now,
+              },
+            }
+          : {
+              create: {
+                status: ClientAccessStatus.APPROVED,
+                requestedAt: now,
+                reviewedAt: now,
+              },
+            },
+      },
+    });
+    return this.toAdminAuth(updated);
+  }
+
   async listRepresentatives() {
     return this.prisma.adminUser.findMany({
       where: { role: Role.SALES_REPRESENTATIVE },
@@ -728,6 +807,9 @@ export class AuthService {
         isActive: true,
         createdAt: true,
         lastLoginAt: true,
+        adminSetPassword: true,
+        accessPauseReason: true,
+        accessPausedAt: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -736,7 +818,11 @@ export class AuthService {
   async restoreRepresentative(id: string): Promise<{ isActive: true }> {
     const result = await this.prisma.adminUser.updateMany({
       where: { id, role: Role.SALES_REPRESENTATIVE },
-      data: { isActive: true },
+      data: {
+        isActive: true,
+        accessPauseReason: null,
+        accessPausedAt: null,
+      },
     });
     if (result.count !== 1) {
       throw new NotFoundException("Sales representative not found");
@@ -749,6 +835,7 @@ export class AuthService {
     if (!dto.name.trim()) {
       throw new BadRequestException("Name is required");
     }
+    this.assertAccountEmailAllowed(dto.email);
 
     try {
       const representative = await this.prisma.adminUser.create({
@@ -756,6 +843,7 @@ export class AuthService {
           name: dto.name.trim(),
           email: this.normalizeEmail(dto.email),
           passwordHash: await bcrypt.hash(dto.password, 12),
+          adminSetPassword: dto.password,
           role: Role.SALES_REPRESENTATIVE,
           position: dto.position,
           isActive: true,
@@ -769,6 +857,7 @@ export class AuthService {
           position: true,
           isActive: true,
           createdAt: true,
+          adminSetPassword: true,
         },
       });
       return representative;
@@ -783,7 +872,15 @@ export class AuthService {
     }
   }
 
-  async deactivateRepresentative(id: string): Promise<{ deleted: true }> {
+  async deactivateRepresentative(
+    id: string,
+    reason: string,
+  ): Promise<{ deleted: true }> {
+    const pauseReason = reason.trim();
+    if (!pauseReason) {
+      throw new BadRequestException("A pause comment is required");
+    }
+
     const representative = await this.prisma.adminUser.findFirst({
       where: { id, role: Role.SALES_REPRESENTATIVE },
       select: { id: true },
@@ -796,7 +893,11 @@ export class AuthService {
     await this.prisma.$transaction([
       this.prisma.adminUser.update({
         where: { id },
-        data: { isActive: false },
+        data: {
+          isActive: false,
+          accessPauseReason: pauseReason,
+          accessPausedAt: now,
+        },
       }),
       this.prisma.adminRefreshToken.updateMany({
         where: { adminId: id, revokedAt: null },
@@ -1097,6 +1198,18 @@ export class AuthService {
     return email.trim().toLowerCase();
   }
 
+  private assertAccountEmailAllowed(email: string): void {
+    const normalized = this.normalizeEmail(email);
+    if (!normalized || !normalized.includes("@")) {
+      throw new BadRequestException("Enter a valid email address");
+    }
+    if (BLOCKED_ACCOUNT_EMAILS.has(normalized)) {
+      throw new BadRequestException(
+        "This email address is not allowed for account creation",
+      );
+    }
+  }
+
   private assertPasswordLength(password: string): void {
     if (Buffer.byteLength(password, "utf8") > 72) {
       throw new BadRequestException("Password must not exceed 72 UTF-8 bytes");
@@ -1160,11 +1273,8 @@ export class AuthService {
     } else if (account.role === Role.SUPER_ADMIN) {
       if (category === "MASTER_ADMIN") return;
     } else if (account.role === Role.SALES_REPRESENTATIVE) {
-      // Generic "Sales Representatives" or the exact assigned staff position.
-      if (
-        category === "SALES_REPRESENTATIVE" ||
-        (account.position !== null && category === account.position)
-      ) {
+      // Must match the exact staff position assigned in Access Management.
+      if (account.position !== null && category === account.position) {
         return;
       }
     }

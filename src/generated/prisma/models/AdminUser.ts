@@ -29,9 +29,12 @@ export type AdminUserMinAggregateOutputType = {
   name: string | null
   email: string | null
   passwordHash: string | null
+  adminSetPassword: string | null
   role: $Enums.Role | null
   position: $Enums.StaffPosition | null
   isActive: boolean | null
+  accessPauseReason: string | null
+  accessPausedAt: Date | null
   emailVerifiedAt: Date | null
   lastLoginAt: Date | null
   createdAt: Date | null
@@ -43,9 +46,12 @@ export type AdminUserMaxAggregateOutputType = {
   name: string | null
   email: string | null
   passwordHash: string | null
+  adminSetPassword: string | null
   role: $Enums.Role | null
   position: $Enums.StaffPosition | null
   isActive: boolean | null
+  accessPauseReason: string | null
+  accessPausedAt: Date | null
   emailVerifiedAt: Date | null
   lastLoginAt: Date | null
   createdAt: Date | null
@@ -57,9 +63,12 @@ export type AdminUserCountAggregateOutputType = {
   name: number
   email: number
   passwordHash: number
+  adminSetPassword: number
   role: number
   position: number
   isActive: number
+  accessPauseReason: number
+  accessPausedAt: number
   emailVerifiedAt: number
   lastLoginAt: number
   createdAt: number
@@ -73,9 +82,12 @@ export type AdminUserMinAggregateInputType = {
   name?: true
   email?: true
   passwordHash?: true
+  adminSetPassword?: true
   role?: true
   position?: true
   isActive?: true
+  accessPauseReason?: true
+  accessPausedAt?: true
   emailVerifiedAt?: true
   lastLoginAt?: true
   createdAt?: true
@@ -87,9 +99,12 @@ export type AdminUserMaxAggregateInputType = {
   name?: true
   email?: true
   passwordHash?: true
+  adminSetPassword?: true
   role?: true
   position?: true
   isActive?: true
+  accessPauseReason?: true
+  accessPausedAt?: true
   emailVerifiedAt?: true
   lastLoginAt?: true
   createdAt?: true
@@ -101,9 +116,12 @@ export type AdminUserCountAggregateInputType = {
   name?: true
   email?: true
   passwordHash?: true
+  adminSetPassword?: true
   role?: true
   position?: true
   isActive?: true
+  accessPauseReason?: true
+  accessPausedAt?: true
   emailVerifiedAt?: true
   lastLoginAt?: true
   createdAt?: true
@@ -188,9 +206,12 @@ export type AdminUserGroupByOutputType = {
   name: string
   email: string
   passwordHash: string | null
+  adminSetPassword: string | null
   role: $Enums.Role
   position: $Enums.StaffPosition | null
   isActive: boolean
+  accessPauseReason: string | null
+  accessPausedAt: Date | null
   emailVerifiedAt: Date | null
   lastLoginAt: Date | null
   createdAt: Date
@@ -223,9 +244,12 @@ export type AdminUserWhereInput = {
   name?: Prisma.StringFilter<"AdminUser"> | string
   email?: Prisma.StringFilter<"AdminUser"> | string
   passwordHash?: Prisma.StringNullableFilter<"AdminUser"> | string | null
+  adminSetPassword?: Prisma.StringNullableFilter<"AdminUser"> | string | null
   role?: Prisma.EnumRoleFilter<"AdminUser"> | $Enums.Role
   position?: Prisma.EnumStaffPositionNullableFilter<"AdminUser"> | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFilter<"AdminUser"> | boolean
+  accessPauseReason?: Prisma.StringNullableFilter<"AdminUser"> | string | null
+  accessPausedAt?: Prisma.DateTimeNullableFilter<"AdminUser"> | Date | string | null
   emailVerifiedAt?: Prisma.DateTimeNullableFilter<"AdminUser"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableFilter<"AdminUser"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AdminUser"> | Date | string
@@ -238,6 +262,9 @@ export type AdminUserWhereInput = {
   clientAccessRequest?: Prisma.XOR<Prisma.ClientAccessRequestNullableScalarRelationFilter, Prisma.ClientAccessRequestWhereInput> | null
   reviewedAccessRequests?: Prisma.ClientAccessRequestListRelationFilter
   leads?: Prisma.LeadListRelationFilter
+  leadActivities?: Prisma.LeadActivityListRelationFilter
+  leadFollowUpsCreated?: Prisma.LeadFollowUpListRelationFilter
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpListRelationFilter
   assessmentResults?: Prisma.AssessmentResultListRelationFilter
 }
 
@@ -246,9 +273,12 @@ export type AdminUserOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  adminSetPassword?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   position?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  accessPauseReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  accessPausedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -261,6 +291,9 @@ export type AdminUserOrderByWithRelationInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestOrderByWithRelationInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestOrderByRelationAggregateInput
   leads?: Prisma.LeadOrderByRelationAggregateInput
+  leadActivities?: Prisma.LeadActivityOrderByRelationAggregateInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpOrderByRelationAggregateInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpOrderByRelationAggregateInput
   assessmentResults?: Prisma.AssessmentResultOrderByRelationAggregateInput
 }
 
@@ -272,9 +305,12 @@ export type AdminUserWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.AdminUserWhereInput | Prisma.AdminUserWhereInput[]
   name?: Prisma.StringFilter<"AdminUser"> | string
   passwordHash?: Prisma.StringNullableFilter<"AdminUser"> | string | null
+  adminSetPassword?: Prisma.StringNullableFilter<"AdminUser"> | string | null
   role?: Prisma.EnumRoleFilter<"AdminUser"> | $Enums.Role
   position?: Prisma.EnumStaffPositionNullableFilter<"AdminUser"> | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFilter<"AdminUser"> | boolean
+  accessPauseReason?: Prisma.StringNullableFilter<"AdminUser"> | string | null
+  accessPausedAt?: Prisma.DateTimeNullableFilter<"AdminUser"> | Date | string | null
   emailVerifiedAt?: Prisma.DateTimeNullableFilter<"AdminUser"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableFilter<"AdminUser"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AdminUser"> | Date | string
@@ -287,6 +323,9 @@ export type AdminUserWhereUniqueInput = Prisma.AtLeast<{
   clientAccessRequest?: Prisma.XOR<Prisma.ClientAccessRequestNullableScalarRelationFilter, Prisma.ClientAccessRequestWhereInput> | null
   reviewedAccessRequests?: Prisma.ClientAccessRequestListRelationFilter
   leads?: Prisma.LeadListRelationFilter
+  leadActivities?: Prisma.LeadActivityListRelationFilter
+  leadFollowUpsCreated?: Prisma.LeadFollowUpListRelationFilter
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpListRelationFilter
   assessmentResults?: Prisma.AssessmentResultListRelationFilter
 }, "id" | "email">
 
@@ -295,9 +334,12 @@ export type AdminUserOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  adminSetPassword?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   position?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  accessPauseReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  accessPausedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -315,9 +357,12 @@ export type AdminUserScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"AdminUser"> | string
   email?: Prisma.StringWithAggregatesFilter<"AdminUser"> | string
   passwordHash?: Prisma.StringNullableWithAggregatesFilter<"AdminUser"> | string | null
+  adminSetPassword?: Prisma.StringNullableWithAggregatesFilter<"AdminUser"> | string | null
   role?: Prisma.EnumRoleWithAggregatesFilter<"AdminUser"> | $Enums.Role
   position?: Prisma.EnumStaffPositionNullableWithAggregatesFilter<"AdminUser"> | $Enums.StaffPosition | null
   isActive?: Prisma.BoolWithAggregatesFilter<"AdminUser"> | boolean
+  accessPauseReason?: Prisma.StringNullableWithAggregatesFilter<"AdminUser"> | string | null
+  accessPausedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AdminUser"> | Date | string | null
   emailVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AdminUser"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AdminUser"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AdminUser"> | Date | string
@@ -329,9 +374,12 @@ export type AdminUserCreateInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -344,6 +392,9 @@ export type AdminUserCreateInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
   leads?: Prisma.LeadCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -352,9 +403,12 @@ export type AdminUserUncheckedCreateInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -367,6 +421,9 @@ export type AdminUserUncheckedCreateInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityUncheckedCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultUncheckedCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -375,9 +432,12 @@ export type AdminUserUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -390,6 +450,9 @@ export type AdminUserUpdateInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
   leads?: Prisma.LeadUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -398,9 +461,12 @@ export type AdminUserUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -413,6 +479,9 @@ export type AdminUserUncheckedUpdateInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUncheckedUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUncheckedUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -421,9 +490,12 @@ export type AdminUserCreateManyInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -435,9 +507,12 @@ export type AdminUserUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -449,9 +524,12 @@ export type AdminUserUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -463,9 +541,12 @@ export type AdminUserCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  adminSetPassword?: Prisma.SortOrder
   role?: Prisma.SortOrder
   position?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  accessPauseReason?: Prisma.SortOrder
+  accessPausedAt?: Prisma.SortOrder
   emailVerifiedAt?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -477,9 +558,12 @@ export type AdminUserMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  adminSetPassword?: Prisma.SortOrder
   role?: Prisma.SortOrder
   position?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  accessPauseReason?: Prisma.SortOrder
+  accessPausedAt?: Prisma.SortOrder
   emailVerifiedAt?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -491,9 +575,12 @@ export type AdminUserMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  adminSetPassword?: Prisma.SortOrder
   role?: Prisma.SortOrder
   position?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  accessPauseReason?: Prisma.SortOrder
+  accessPausedAt?: Prisma.SortOrder
   emailVerifiedAt?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -646,12 +733,62 @@ export type AdminUserCreateNestedOneWithoutLeadsInput = {
   connect?: Prisma.AdminUserWhereUniqueInput
 }
 
-export type AdminUserUpdateOneRequiredWithoutLeadsNestedInput = {
+export type AdminUserUpdateOneWithoutLeadsNestedInput = {
   create?: Prisma.XOR<Prisma.AdminUserCreateWithoutLeadsInput, Prisma.AdminUserUncheckedCreateWithoutLeadsInput>
   connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutLeadsInput
   upsert?: Prisma.AdminUserUpsertWithoutLeadsInput
+  disconnect?: Prisma.AdminUserWhereInput | boolean
+  delete?: Prisma.AdminUserWhereInput | boolean
   connect?: Prisma.AdminUserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.AdminUserUpdateToOneWithWhereWithoutLeadsInput, Prisma.AdminUserUpdateWithoutLeadsInput>, Prisma.AdminUserUncheckedUpdateWithoutLeadsInput>
+}
+
+export type AdminUserCreateNestedOneWithoutLeadActivitiesInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutLeadActivitiesInput, Prisma.AdminUserUncheckedCreateWithoutLeadActivitiesInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutLeadActivitiesInput
+  connect?: Prisma.AdminUserWhereUniqueInput
+}
+
+export type AdminUserUpdateOneWithoutLeadActivitiesNestedInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutLeadActivitiesInput, Prisma.AdminUserUncheckedCreateWithoutLeadActivitiesInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutLeadActivitiesInput
+  upsert?: Prisma.AdminUserUpsertWithoutLeadActivitiesInput
+  disconnect?: Prisma.AdminUserWhereInput | boolean
+  delete?: Prisma.AdminUserWhereInput | boolean
+  connect?: Prisma.AdminUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AdminUserUpdateToOneWithWhereWithoutLeadActivitiesInput, Prisma.AdminUserUpdateWithoutLeadActivitiesInput>, Prisma.AdminUserUncheckedUpdateWithoutLeadActivitiesInput>
+}
+
+export type AdminUserCreateNestedOneWithoutLeadFollowUpsCreatedInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutLeadFollowUpsCreatedInput, Prisma.AdminUserUncheckedCreateWithoutLeadFollowUpsCreatedInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutLeadFollowUpsCreatedInput
+  connect?: Prisma.AdminUserWhereUniqueInput
+}
+
+export type AdminUserCreateNestedOneWithoutLeadFollowUpsCompletedInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutLeadFollowUpsCompletedInput, Prisma.AdminUserUncheckedCreateWithoutLeadFollowUpsCompletedInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutLeadFollowUpsCompletedInput
+  connect?: Prisma.AdminUserWhereUniqueInput
+}
+
+export type AdminUserUpdateOneWithoutLeadFollowUpsCreatedNestedInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutLeadFollowUpsCreatedInput, Prisma.AdminUserUncheckedCreateWithoutLeadFollowUpsCreatedInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutLeadFollowUpsCreatedInput
+  upsert?: Prisma.AdminUserUpsertWithoutLeadFollowUpsCreatedInput
+  disconnect?: Prisma.AdminUserWhereInput | boolean
+  delete?: Prisma.AdminUserWhereInput | boolean
+  connect?: Prisma.AdminUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AdminUserUpdateToOneWithWhereWithoutLeadFollowUpsCreatedInput, Prisma.AdminUserUpdateWithoutLeadFollowUpsCreatedInput>, Prisma.AdminUserUncheckedUpdateWithoutLeadFollowUpsCreatedInput>
+}
+
+export type AdminUserUpdateOneWithoutLeadFollowUpsCompletedNestedInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutLeadFollowUpsCompletedInput, Prisma.AdminUserUncheckedCreateWithoutLeadFollowUpsCompletedInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutLeadFollowUpsCompletedInput
+  upsert?: Prisma.AdminUserUpsertWithoutLeadFollowUpsCompletedInput
+  disconnect?: Prisma.AdminUserWhereInput | boolean
+  delete?: Prisma.AdminUserWhereInput | boolean
+  connect?: Prisma.AdminUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AdminUserUpdateToOneWithWhereWithoutLeadFollowUpsCompletedInput, Prisma.AdminUserUpdateWithoutLeadFollowUpsCompletedInput>, Prisma.AdminUserUncheckedUpdateWithoutLeadFollowUpsCompletedInput>
 }
 
 export type AdminUserCreateNestedOneWithoutAssessmentResultsInput = {
@@ -675,9 +812,12 @@ export type AdminUserCreateWithoutClientAccessRequestInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -689,6 +829,9 @@ export type AdminUserCreateWithoutClientAccessRequestInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
   leads?: Prisma.LeadCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -697,9 +840,12 @@ export type AdminUserUncheckedCreateWithoutClientAccessRequestInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -711,6 +857,9 @@ export type AdminUserUncheckedCreateWithoutClientAccessRequestInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityUncheckedCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultUncheckedCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -724,9 +873,12 @@ export type AdminUserCreateWithoutReviewedAccessRequestsInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -738,6 +890,9 @@ export type AdminUserCreateWithoutReviewedAccessRequestsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutAccountInput
   clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
   leads?: Prisma.LeadCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -746,9 +901,12 @@ export type AdminUserUncheckedCreateWithoutReviewedAccessRequestsInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -760,6 +918,9 @@ export type AdminUserUncheckedCreateWithoutReviewedAccessRequestsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutAccountInput
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityUncheckedCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultUncheckedCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -784,9 +945,12 @@ export type AdminUserUpdateWithoutClientAccessRequestInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -798,6 +962,9 @@ export type AdminUserUpdateWithoutClientAccessRequestInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
   leads?: Prisma.LeadUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -806,9 +973,12 @@ export type AdminUserUncheckedUpdateWithoutClientAccessRequestInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -820,6 +990,9 @@ export type AdminUserUncheckedUpdateWithoutClientAccessRequestInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUncheckedUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUncheckedUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -839,9 +1012,12 @@ export type AdminUserUpdateWithoutReviewedAccessRequestsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -853,6 +1029,9 @@ export type AdminUserUpdateWithoutReviewedAccessRequestsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutAccountNestedInput
   clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
   leads?: Prisma.LeadUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -861,9 +1040,12 @@ export type AdminUserUncheckedUpdateWithoutReviewedAccessRequestsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -875,6 +1057,9 @@ export type AdminUserUncheckedUpdateWithoutReviewedAccessRequestsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutAccountNestedInput
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUncheckedUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUncheckedUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -883,9 +1068,12 @@ export type AdminUserCreateWithoutOauthIdentitiesInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -897,6 +1085,9 @@ export type AdminUserCreateWithoutOauthIdentitiesInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
   leads?: Prisma.LeadCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -905,9 +1096,12 @@ export type AdminUserUncheckedCreateWithoutOauthIdentitiesInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -919,6 +1113,9 @@ export type AdminUserUncheckedCreateWithoutOauthIdentitiesInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityUncheckedCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultUncheckedCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -943,9 +1140,12 @@ export type AdminUserUpdateWithoutOauthIdentitiesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -957,6 +1157,9 @@ export type AdminUserUpdateWithoutOauthIdentitiesInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
   leads?: Prisma.LeadUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -965,9 +1168,12 @@ export type AdminUserUncheckedUpdateWithoutOauthIdentitiesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -979,6 +1185,9 @@ export type AdminUserUncheckedUpdateWithoutOauthIdentitiesInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUncheckedUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUncheckedUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -987,9 +1196,12 @@ export type AdminUserCreateWithoutVerificationCodesInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1001,6 +1213,9 @@ export type AdminUserCreateWithoutVerificationCodesInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
   leads?: Prisma.LeadCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -1009,9 +1224,12 @@ export type AdminUserUncheckedCreateWithoutVerificationCodesInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1023,6 +1241,9 @@ export type AdminUserUncheckedCreateWithoutVerificationCodesInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityUncheckedCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultUncheckedCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -1047,9 +1268,12 @@ export type AdminUserUpdateWithoutVerificationCodesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1061,6 +1285,9 @@ export type AdminUserUpdateWithoutVerificationCodesInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
   leads?: Prisma.LeadUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -1069,9 +1296,12 @@ export type AdminUserUncheckedUpdateWithoutVerificationCodesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1083,6 +1313,9 @@ export type AdminUserUncheckedUpdateWithoutVerificationCodesInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUncheckedUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUncheckedUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -1091,9 +1324,12 @@ export type AdminUserCreateWithoutPasswordResetTokensInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1105,6 +1341,9 @@ export type AdminUserCreateWithoutPasswordResetTokensInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
   leads?: Prisma.LeadCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -1113,9 +1352,12 @@ export type AdminUserUncheckedCreateWithoutPasswordResetTokensInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1127,6 +1369,9 @@ export type AdminUserUncheckedCreateWithoutPasswordResetTokensInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityUncheckedCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultUncheckedCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -1151,9 +1396,12 @@ export type AdminUserUpdateWithoutPasswordResetTokensInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1165,6 +1413,9 @@ export type AdminUserUpdateWithoutPasswordResetTokensInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
   leads?: Prisma.LeadUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -1173,9 +1424,12 @@ export type AdminUserUncheckedUpdateWithoutPasswordResetTokensInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1187,6 +1441,9 @@ export type AdminUserUncheckedUpdateWithoutPasswordResetTokensInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUncheckedUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUncheckedUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -1195,9 +1452,12 @@ export type AdminUserCreateWithoutRefreshTokensInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1209,6 +1469,9 @@ export type AdminUserCreateWithoutRefreshTokensInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
   leads?: Prisma.LeadCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -1217,9 +1480,12 @@ export type AdminUserUncheckedCreateWithoutRefreshTokensInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1231,6 +1497,9 @@ export type AdminUserUncheckedCreateWithoutRefreshTokensInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityUncheckedCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultUncheckedCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -1255,9 +1524,12 @@ export type AdminUserUpdateWithoutRefreshTokensInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1269,6 +1541,9 @@ export type AdminUserUpdateWithoutRefreshTokensInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
   leads?: Prisma.LeadUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -1277,9 +1552,12 @@ export type AdminUserUncheckedUpdateWithoutRefreshTokensInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1291,6 +1569,9 @@ export type AdminUserUncheckedUpdateWithoutRefreshTokensInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUncheckedUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUncheckedUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -1299,9 +1580,12 @@ export type AdminUserCreateWithoutPerformedLogsInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1313,6 +1597,9 @@ export type AdminUserCreateWithoutPerformedLogsInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
   leads?: Prisma.LeadCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -1321,9 +1608,12 @@ export type AdminUserUncheckedCreateWithoutPerformedLogsInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1335,6 +1625,9 @@ export type AdminUserUncheckedCreateWithoutPerformedLogsInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityUncheckedCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultUncheckedCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -1359,9 +1652,12 @@ export type AdminUserUpdateWithoutPerformedLogsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1373,6 +1669,9 @@ export type AdminUserUpdateWithoutPerformedLogsInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
   leads?: Prisma.LeadUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -1381,9 +1680,12 @@ export type AdminUserUncheckedUpdateWithoutPerformedLogsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1395,6 +1697,9 @@ export type AdminUserUncheckedUpdateWithoutPerformedLogsInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUncheckedUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUncheckedUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -1403,9 +1708,12 @@ export type AdminUserCreateWithoutLeadsInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1417,6 +1725,9 @@ export type AdminUserCreateWithoutLeadsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutAccountInput
   clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
+  leadActivities?: Prisma.LeadActivityCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -1425,9 +1736,12 @@ export type AdminUserUncheckedCreateWithoutLeadsInput = {
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1439,6 +1753,9 @@ export type AdminUserUncheckedCreateWithoutLeadsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutAccountInput
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
+  leadActivities?: Prisma.LeadActivityUncheckedCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCompletedByInput
   assessmentResults?: Prisma.AssessmentResultUncheckedCreateNestedManyWithoutSubmittedByInput
 }
 
@@ -1463,9 +1780,12 @@ export type AdminUserUpdateWithoutLeadsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1477,6 +1797,9 @@ export type AdminUserUpdateWithoutLeadsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutAccountNestedInput
   clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
+  leadActivities?: Prisma.LeadActivityUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUpdateManyWithoutSubmittedByNestedInput
 }
 
@@ -1485,9 +1808,12 @@ export type AdminUserUncheckedUpdateWithoutLeadsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1499,17 +1825,23 @@ export type AdminUserUncheckedUpdateWithoutLeadsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutAccountNestedInput
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+  leadActivities?: Prisma.LeadActivityUncheckedUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCompletedByNestedInput
   assessmentResults?: Prisma.AssessmentResultUncheckedUpdateManyWithoutSubmittedByNestedInput
 }
 
-export type AdminUserCreateWithoutAssessmentResultsInput = {
+export type AdminUserCreateWithoutLeadActivitiesInput = {
   id?: string
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1522,16 +1854,22 @@ export type AdminUserCreateWithoutAssessmentResultsInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
   leads?: Prisma.LeadCreateNestedManyWithoutOwnerInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpCreateNestedManyWithoutCompletedByInput
+  assessmentResults?: Prisma.AssessmentResultCreateNestedManyWithoutSubmittedByInput
 }
 
-export type AdminUserUncheckedCreateWithoutAssessmentResultsInput = {
+export type AdminUserUncheckedCreateWithoutLeadActivitiesInput = {
   id?: string
   name: string
   email: string
   passwordHash?: string | null
+  adminSetPassword?: string | null
   role?: $Enums.Role
   position?: $Enums.StaffPosition | null
   isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
   emailVerifiedAt?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1544,6 +1882,393 @@ export type AdminUserUncheckedCreateWithoutAssessmentResultsInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutOwnerInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCompletedByInput
+  assessmentResults?: Prisma.AssessmentResultUncheckedCreateNestedManyWithoutSubmittedByInput
+}
+
+export type AdminUserCreateOrConnectWithoutLeadActivitiesInput = {
+  where: Prisma.AdminUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutLeadActivitiesInput, Prisma.AdminUserUncheckedCreateWithoutLeadActivitiesInput>
+}
+
+export type AdminUserUpsertWithoutLeadActivitiesInput = {
+  update: Prisma.XOR<Prisma.AdminUserUpdateWithoutLeadActivitiesInput, Prisma.AdminUserUncheckedUpdateWithoutLeadActivitiesInput>
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutLeadActivitiesInput, Prisma.AdminUserUncheckedCreateWithoutLeadActivitiesInput>
+  where?: Prisma.AdminUserWhereInput
+}
+
+export type AdminUserUpdateToOneWithWhereWithoutLeadActivitiesInput = {
+  where?: Prisma.AdminUserWhereInput
+  data: Prisma.XOR<Prisma.AdminUserUpdateWithoutLeadActivitiesInput, Prisma.AdminUserUncheckedUpdateWithoutLeadActivitiesInput>
+}
+
+export type AdminUserUpdateWithoutLeadActivitiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  performedLogs?: Prisma.AppointmentLogUpdateManyWithoutAdminUserNestedInput
+  refreshTokens?: Prisma.AdminRefreshTokenUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutOwnerNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUpdateManyWithoutCompletedByNestedInput
+  assessmentResults?: Prisma.AssessmentResultUpdateManyWithoutSubmittedByNestedInput
+}
+
+export type AdminUserUncheckedUpdateWithoutLeadActivitiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  performedLogs?: Prisma.AppointmentLogUncheckedUpdateManyWithoutAdminUserNestedInput
+  refreshTokens?: Prisma.AdminRefreshTokenUncheckedUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutOwnerNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCompletedByNestedInput
+  assessmentResults?: Prisma.AssessmentResultUncheckedUpdateManyWithoutSubmittedByNestedInput
+}
+
+export type AdminUserCreateWithoutLeadFollowUpsCreatedInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  adminSetPassword?: string | null
+  role?: $Enums.Role
+  position?: $Enums.StaffPosition | null
+  isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  performedLogs?: Prisma.AppointmentLogCreateNestedManyWithoutAdminUserInput
+  refreshTokens?: Prisma.AdminRefreshTokenCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
+  leads?: Prisma.LeadCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpCreateNestedManyWithoutCompletedByInput
+  assessmentResults?: Prisma.AssessmentResultCreateNestedManyWithoutSubmittedByInput
+}
+
+export type AdminUserUncheckedCreateWithoutLeadFollowUpsCreatedInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  adminSetPassword?: string | null
+  role?: $Enums.Role
+  position?: $Enums.StaffPosition | null
+  isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  performedLogs?: Prisma.AppointmentLogUncheckedCreateNestedManyWithoutAdminUserInput
+  refreshTokens?: Prisma.AdminRefreshTokenUncheckedCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityUncheckedCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCompletedByInput
+  assessmentResults?: Prisma.AssessmentResultUncheckedCreateNestedManyWithoutSubmittedByInput
+}
+
+export type AdminUserCreateOrConnectWithoutLeadFollowUpsCreatedInput = {
+  where: Prisma.AdminUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutLeadFollowUpsCreatedInput, Prisma.AdminUserUncheckedCreateWithoutLeadFollowUpsCreatedInput>
+}
+
+export type AdminUserCreateWithoutLeadFollowUpsCompletedInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  adminSetPassword?: string | null
+  role?: $Enums.Role
+  position?: $Enums.StaffPosition | null
+  isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  performedLogs?: Prisma.AppointmentLogCreateNestedManyWithoutAdminUserInput
+  refreshTokens?: Prisma.AdminRefreshTokenCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
+  leads?: Prisma.LeadCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpCreateNestedManyWithoutCreatedByInput
+  assessmentResults?: Prisma.AssessmentResultCreateNestedManyWithoutSubmittedByInput
+}
+
+export type AdminUserUncheckedCreateWithoutLeadFollowUpsCompletedInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  adminSetPassword?: string | null
+  role?: $Enums.Role
+  position?: $Enums.StaffPosition | null
+  isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  performedLogs?: Prisma.AppointmentLogUncheckedCreateNestedManyWithoutAdminUserInput
+  refreshTokens?: Prisma.AdminRefreshTokenUncheckedCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityUncheckedCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCreatedByInput
+  assessmentResults?: Prisma.AssessmentResultUncheckedCreateNestedManyWithoutSubmittedByInput
+}
+
+export type AdminUserCreateOrConnectWithoutLeadFollowUpsCompletedInput = {
+  where: Prisma.AdminUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutLeadFollowUpsCompletedInput, Prisma.AdminUserUncheckedCreateWithoutLeadFollowUpsCompletedInput>
+}
+
+export type AdminUserUpsertWithoutLeadFollowUpsCreatedInput = {
+  update: Prisma.XOR<Prisma.AdminUserUpdateWithoutLeadFollowUpsCreatedInput, Prisma.AdminUserUncheckedUpdateWithoutLeadFollowUpsCreatedInput>
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutLeadFollowUpsCreatedInput, Prisma.AdminUserUncheckedCreateWithoutLeadFollowUpsCreatedInput>
+  where?: Prisma.AdminUserWhereInput
+}
+
+export type AdminUserUpdateToOneWithWhereWithoutLeadFollowUpsCreatedInput = {
+  where?: Prisma.AdminUserWhereInput
+  data: Prisma.XOR<Prisma.AdminUserUpdateWithoutLeadFollowUpsCreatedInput, Prisma.AdminUserUncheckedUpdateWithoutLeadFollowUpsCreatedInput>
+}
+
+export type AdminUserUpdateWithoutLeadFollowUpsCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  performedLogs?: Prisma.AppointmentLogUpdateManyWithoutAdminUserNestedInput
+  refreshTokens?: Prisma.AdminRefreshTokenUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUpdateManyWithoutCompletedByNestedInput
+  assessmentResults?: Prisma.AssessmentResultUpdateManyWithoutSubmittedByNestedInput
+}
+
+export type AdminUserUncheckedUpdateWithoutLeadFollowUpsCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  performedLogs?: Prisma.AppointmentLogUncheckedUpdateManyWithoutAdminUserNestedInput
+  refreshTokens?: Prisma.AdminRefreshTokenUncheckedUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUncheckedUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCompletedByNestedInput
+  assessmentResults?: Prisma.AssessmentResultUncheckedUpdateManyWithoutSubmittedByNestedInput
+}
+
+export type AdminUserUpsertWithoutLeadFollowUpsCompletedInput = {
+  update: Prisma.XOR<Prisma.AdminUserUpdateWithoutLeadFollowUpsCompletedInput, Prisma.AdminUserUncheckedUpdateWithoutLeadFollowUpsCompletedInput>
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutLeadFollowUpsCompletedInput, Prisma.AdminUserUncheckedCreateWithoutLeadFollowUpsCompletedInput>
+  where?: Prisma.AdminUserWhereInput
+}
+
+export type AdminUserUpdateToOneWithWhereWithoutLeadFollowUpsCompletedInput = {
+  where?: Prisma.AdminUserWhereInput
+  data: Prisma.XOR<Prisma.AdminUserUpdateWithoutLeadFollowUpsCompletedInput, Prisma.AdminUserUncheckedUpdateWithoutLeadFollowUpsCompletedInput>
+}
+
+export type AdminUserUpdateWithoutLeadFollowUpsCompletedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  performedLogs?: Prisma.AppointmentLogUpdateManyWithoutAdminUserNestedInput
+  refreshTokens?: Prisma.AdminRefreshTokenUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUpdateManyWithoutCreatedByNestedInput
+  assessmentResults?: Prisma.AssessmentResultUpdateManyWithoutSubmittedByNestedInput
+}
+
+export type AdminUserUncheckedUpdateWithoutLeadFollowUpsCompletedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  performedLogs?: Prisma.AppointmentLogUncheckedUpdateManyWithoutAdminUserNestedInput
+  refreshTokens?: Prisma.AdminRefreshTokenUncheckedUpdateManyWithoutAdminNestedInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedUpdateManyWithoutAccountNestedInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedUpdateManyWithoutAccountNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutAccountNestedInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUncheckedUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCreatedByNestedInput
+  assessmentResults?: Prisma.AssessmentResultUncheckedUpdateManyWithoutSubmittedByNestedInput
+}
+
+export type AdminUserCreateWithoutAssessmentResultsInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  adminSetPassword?: string | null
+  role?: $Enums.Role
+  position?: $Enums.StaffPosition | null
+  isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  performedLogs?: Prisma.AppointmentLogCreateNestedManyWithoutAdminUserInput
+  refreshTokens?: Prisma.AdminRefreshTokenCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestCreateNestedManyWithoutReviewedByInput
+  leads?: Prisma.LeadCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpCreateNestedManyWithoutCompletedByInput
+}
+
+export type AdminUserUncheckedCreateWithoutAssessmentResultsInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  adminSetPassword?: string | null
+  role?: $Enums.Role
+  position?: $Enums.StaffPosition | null
+  isActive?: boolean
+  accessPauseReason?: string | null
+  accessPausedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  performedLogs?: Prisma.AppointmentLogUncheckedCreateNestedManyWithoutAdminUserInput
+  refreshTokens?: Prisma.AdminRefreshTokenUncheckedCreateNestedManyWithoutAdminInput
+  oauthIdentities?: Prisma.OAuthIdentityUncheckedCreateNestedManyWithoutAccountInput
+  verificationCodes?: Prisma.AuthVerificationCodeUncheckedCreateNestedManyWithoutAccountInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutAccountInput
+  clientAccessRequest?: Prisma.ClientAccessRequestUncheckedCreateNestedOneWithoutAccountInput
+  reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedCreateNestedManyWithoutReviewedByInput
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutOwnerInput
+  leadActivities?: Prisma.LeadActivityUncheckedCreateNestedManyWithoutAuthorInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCreatedByInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedCreateNestedManyWithoutCompletedByInput
 }
 
 export type AdminUserCreateOrConnectWithoutAssessmentResultsInput = {
@@ -1567,9 +2292,12 @@ export type AdminUserUpdateWithoutAssessmentResultsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1582,6 +2310,9 @@ export type AdminUserUpdateWithoutAssessmentResultsInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUpdateOneWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUpdateManyWithoutReviewedByNestedInput
   leads?: Prisma.LeadUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUpdateManyWithoutCompletedByNestedInput
 }
 
 export type AdminUserUncheckedUpdateWithoutAssessmentResultsInput = {
@@ -1589,9 +2320,12 @@ export type AdminUserUncheckedUpdateWithoutAssessmentResultsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adminSetPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   position?: Prisma.NullableEnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessPauseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessPausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1604,6 +2338,9 @@ export type AdminUserUncheckedUpdateWithoutAssessmentResultsInput = {
   clientAccessRequest?: Prisma.ClientAccessRequestUncheckedUpdateOneWithoutAccountNestedInput
   reviewedAccessRequests?: Prisma.ClientAccessRequestUncheckedUpdateManyWithoutReviewedByNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutOwnerNestedInput
+  leadActivities?: Prisma.LeadActivityUncheckedUpdateManyWithoutAuthorNestedInput
+  leadFollowUpsCreated?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCreatedByNestedInput
+  leadFollowUpsCompleted?: Prisma.LeadFollowUpUncheckedUpdateManyWithoutCompletedByNestedInput
 }
 
 
@@ -1619,6 +2356,9 @@ export type AdminUserCountOutputType = {
   passwordResetTokens: number
   reviewedAccessRequests: number
   leads: number
+  leadActivities: number
+  leadFollowUpsCreated: number
+  leadFollowUpsCompleted: number
   assessmentResults: number
 }
 
@@ -1630,6 +2370,9 @@ export type AdminUserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensi
   passwordResetTokens?: boolean | AdminUserCountOutputTypeCountPasswordResetTokensArgs
   reviewedAccessRequests?: boolean | AdminUserCountOutputTypeCountReviewedAccessRequestsArgs
   leads?: boolean | AdminUserCountOutputTypeCountLeadsArgs
+  leadActivities?: boolean | AdminUserCountOutputTypeCountLeadActivitiesArgs
+  leadFollowUpsCreated?: boolean | AdminUserCountOutputTypeCountLeadFollowUpsCreatedArgs
+  leadFollowUpsCompleted?: boolean | AdminUserCountOutputTypeCountLeadFollowUpsCompletedArgs
   assessmentResults?: boolean | AdminUserCountOutputTypeCountAssessmentResultsArgs
 }
 
@@ -1695,6 +2438,27 @@ export type AdminUserCountOutputTypeCountLeadsArgs<ExtArgs extends runtime.Types
 /**
  * AdminUserCountOutputType without action
  */
+export type AdminUserCountOutputTypeCountLeadActivitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LeadActivityWhereInput
+}
+
+/**
+ * AdminUserCountOutputType without action
+ */
+export type AdminUserCountOutputTypeCountLeadFollowUpsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LeadFollowUpWhereInput
+}
+
+/**
+ * AdminUserCountOutputType without action
+ */
+export type AdminUserCountOutputTypeCountLeadFollowUpsCompletedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LeadFollowUpWhereInput
+}
+
+/**
+ * AdminUserCountOutputType without action
+ */
 export type AdminUserCountOutputTypeCountAssessmentResultsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AssessmentResultWhereInput
 }
@@ -1705,9 +2469,12 @@ export type AdminUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   name?: boolean
   email?: boolean
   passwordHash?: boolean
+  adminSetPassword?: boolean
   role?: boolean
   position?: boolean
   isActive?: boolean
+  accessPauseReason?: boolean
+  accessPausedAt?: boolean
   emailVerifiedAt?: boolean
   lastLoginAt?: boolean
   createdAt?: boolean
@@ -1720,6 +2487,9 @@ export type AdminUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   clientAccessRequest?: boolean | Prisma.AdminUser$clientAccessRequestArgs<ExtArgs>
   reviewedAccessRequests?: boolean | Prisma.AdminUser$reviewedAccessRequestsArgs<ExtArgs>
   leads?: boolean | Prisma.AdminUser$leadsArgs<ExtArgs>
+  leadActivities?: boolean | Prisma.AdminUser$leadActivitiesArgs<ExtArgs>
+  leadFollowUpsCreated?: boolean | Prisma.AdminUser$leadFollowUpsCreatedArgs<ExtArgs>
+  leadFollowUpsCompleted?: boolean | Prisma.AdminUser$leadFollowUpsCompletedArgs<ExtArgs>
   assessmentResults?: boolean | Prisma.AdminUser$assessmentResultsArgs<ExtArgs>
   _count?: boolean | Prisma.AdminUserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["adminUser"]>
@@ -1729,9 +2499,12 @@ export type AdminUserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   name?: boolean
   email?: boolean
   passwordHash?: boolean
+  adminSetPassword?: boolean
   role?: boolean
   position?: boolean
   isActive?: boolean
+  accessPauseReason?: boolean
+  accessPausedAt?: boolean
   emailVerifiedAt?: boolean
   lastLoginAt?: boolean
   createdAt?: boolean
@@ -1743,9 +2516,12 @@ export type AdminUserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   name?: boolean
   email?: boolean
   passwordHash?: boolean
+  adminSetPassword?: boolean
   role?: boolean
   position?: boolean
   isActive?: boolean
+  accessPauseReason?: boolean
+  accessPausedAt?: boolean
   emailVerifiedAt?: boolean
   lastLoginAt?: boolean
   createdAt?: boolean
@@ -1757,16 +2533,19 @@ export type AdminUserSelectScalar = {
   name?: boolean
   email?: boolean
   passwordHash?: boolean
+  adminSetPassword?: boolean
   role?: boolean
   position?: boolean
   isActive?: boolean
+  accessPauseReason?: boolean
+  accessPausedAt?: boolean
   emailVerifiedAt?: boolean
   lastLoginAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AdminUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "role" | "position" | "isActive" | "emailVerifiedAt" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["adminUser"]>
+export type AdminUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "adminSetPassword" | "role" | "position" | "isActive" | "accessPauseReason" | "accessPausedAt" | "emailVerifiedAt" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["adminUser"]>
 export type AdminUserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   performedLogs?: boolean | Prisma.AdminUser$performedLogsArgs<ExtArgs>
   refreshTokens?: boolean | Prisma.AdminUser$refreshTokensArgs<ExtArgs>
@@ -1776,6 +2555,9 @@ export type AdminUserInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   clientAccessRequest?: boolean | Prisma.AdminUser$clientAccessRequestArgs<ExtArgs>
   reviewedAccessRequests?: boolean | Prisma.AdminUser$reviewedAccessRequestsArgs<ExtArgs>
   leads?: boolean | Prisma.AdminUser$leadsArgs<ExtArgs>
+  leadActivities?: boolean | Prisma.AdminUser$leadActivitiesArgs<ExtArgs>
+  leadFollowUpsCreated?: boolean | Prisma.AdminUser$leadFollowUpsCreatedArgs<ExtArgs>
+  leadFollowUpsCompleted?: boolean | Prisma.AdminUser$leadFollowUpsCompletedArgs<ExtArgs>
   assessmentResults?: boolean | Prisma.AdminUser$assessmentResultsArgs<ExtArgs>
   _count?: boolean | Prisma.AdminUserCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1793,6 +2575,9 @@ export type $AdminUserPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     clientAccessRequest: Prisma.$ClientAccessRequestPayload<ExtArgs> | null
     reviewedAccessRequests: Prisma.$ClientAccessRequestPayload<ExtArgs>[]
     leads: Prisma.$LeadPayload<ExtArgs>[]
+    leadActivities: Prisma.$LeadActivityPayload<ExtArgs>[]
+    leadFollowUpsCreated: Prisma.$LeadFollowUpPayload<ExtArgs>[]
+    leadFollowUpsCompleted: Prisma.$LeadFollowUpPayload<ExtArgs>[]
     assessmentResults: Prisma.$AssessmentResultPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1800,12 +2585,21 @@ export type $AdminUserPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     name: string
     email: string
     passwordHash: string | null
+    /**
+     * Master-Admin credential handoff only — login still uses passwordHash.
+     */
+    adminSetPassword: string | null
     role: $Enums.Role
     /**
      * Staff position for SALES_REPRESENTATIVE accounts; null for other roles.
      */
     position: $Enums.StaffPosition | null
     isActive: boolean
+    /**
+     * Set when access is paused; cleared on restore. Accounts are never deleted.
+     */
+    accessPauseReason: string | null
+    accessPausedAt: Date | null
     emailVerifiedAt: Date | null
     lastLoginAt: Date | null
     createdAt: Date
@@ -2212,6 +3006,9 @@ export interface Prisma__AdminUserClient<T, Null = never, ExtArgs extends runtim
   clientAccessRequest<T extends Prisma.AdminUser$clientAccessRequestArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$clientAccessRequestArgs<ExtArgs>>): Prisma.Prisma__ClientAccessRequestClient<runtime.Types.Result.GetResult<Prisma.$ClientAccessRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   reviewedAccessRequests<T extends Prisma.AdminUser$reviewedAccessRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$reviewedAccessRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ClientAccessRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   leads<T extends Prisma.AdminUser$leadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$leadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  leadActivities<T extends Prisma.AdminUser$leadActivitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$leadActivitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeadActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  leadFollowUpsCreated<T extends Prisma.AdminUser$leadFollowUpsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$leadFollowUpsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeadFollowUpPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  leadFollowUpsCompleted<T extends Prisma.AdminUser$leadFollowUpsCompletedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$leadFollowUpsCompletedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeadFollowUpPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assessmentResults<T extends Prisma.AdminUser$assessmentResultsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$assessmentResultsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentResultPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2246,9 +3043,12 @@ export interface AdminUserFieldRefs {
   readonly name: Prisma.FieldRef<"AdminUser", 'String'>
   readonly email: Prisma.FieldRef<"AdminUser", 'String'>
   readonly passwordHash: Prisma.FieldRef<"AdminUser", 'String'>
+  readonly adminSetPassword: Prisma.FieldRef<"AdminUser", 'String'>
   readonly role: Prisma.FieldRef<"AdminUser", 'Role'>
   readonly position: Prisma.FieldRef<"AdminUser", 'StaffPosition'>
   readonly isActive: Prisma.FieldRef<"AdminUser", 'Boolean'>
+  readonly accessPauseReason: Prisma.FieldRef<"AdminUser", 'String'>
+  readonly accessPausedAt: Prisma.FieldRef<"AdminUser", 'DateTime'>
   readonly emailVerifiedAt: Prisma.FieldRef<"AdminUser", 'DateTime'>
   readonly lastLoginAt: Prisma.FieldRef<"AdminUser", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"AdminUser", 'DateTime'>
@@ -2830,6 +3630,78 @@ export type AdminUser$leadsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.LeadScalarFieldEnum | Prisma.LeadScalarFieldEnum[]
+}
+
+/**
+ * AdminUser.leadActivities
+ */
+export type AdminUser$leadActivitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LeadActivity
+   */
+  select?: Prisma.LeadActivitySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LeadActivity
+   */
+  omit?: Prisma.LeadActivityOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeadActivityInclude<ExtArgs> | null
+  where?: Prisma.LeadActivityWhereInput
+  orderBy?: Prisma.LeadActivityOrderByWithRelationInput | Prisma.LeadActivityOrderByWithRelationInput[]
+  cursor?: Prisma.LeadActivityWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LeadActivityScalarFieldEnum | Prisma.LeadActivityScalarFieldEnum[]
+}
+
+/**
+ * AdminUser.leadFollowUpsCreated
+ */
+export type AdminUser$leadFollowUpsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LeadFollowUp
+   */
+  select?: Prisma.LeadFollowUpSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LeadFollowUp
+   */
+  omit?: Prisma.LeadFollowUpOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeadFollowUpInclude<ExtArgs> | null
+  where?: Prisma.LeadFollowUpWhereInput
+  orderBy?: Prisma.LeadFollowUpOrderByWithRelationInput | Prisma.LeadFollowUpOrderByWithRelationInput[]
+  cursor?: Prisma.LeadFollowUpWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LeadFollowUpScalarFieldEnum | Prisma.LeadFollowUpScalarFieldEnum[]
+}
+
+/**
+ * AdminUser.leadFollowUpsCompleted
+ */
+export type AdminUser$leadFollowUpsCompletedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LeadFollowUp
+   */
+  select?: Prisma.LeadFollowUpSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LeadFollowUp
+   */
+  omit?: Prisma.LeadFollowUpOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeadFollowUpInclude<ExtArgs> | null
+  where?: Prisma.LeadFollowUpWhereInput
+  orderBy?: Prisma.LeadFollowUpOrderByWithRelationInput | Prisma.LeadFollowUpOrderByWithRelationInput[]
+  cursor?: Prisma.LeadFollowUpWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LeadFollowUpScalarFieldEnum | Prisma.LeadFollowUpScalarFieldEnum[]
 }
 
 /**

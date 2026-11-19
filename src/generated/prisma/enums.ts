@@ -19,10 +19,11 @@ export type Role = (typeof Role)[keyof typeof Role]
 
 
 export const StaffPosition = {
-  ACCOUNT_EXECUTIVE: 'ACCOUNT_EXECUTIVE',
+  EXECUTIVE_ACCOUNT_DEVELOPMENT_SPECIALIST: 'EXECUTIVE_ACCOUNT_DEVELOPMENT_SPECIALIST',
   IMPLEMENTATION_SPECIALIST: 'IMPLEMENTATION_SPECIALIST',
   FRACTIONAL_VP: 'FRACTIONAL_VP',
-  REGIONAL_SALES_MANAGER: 'REGIONAL_SALES_MANAGER'
+  REGIONAL_SALES_MANAGER: 'REGIONAL_SALES_MANAGER',
+  OFFICE_MANAGER: 'OFFICE_MANAGER'
 } as const
 
 export type StaffPosition = (typeof StaffPosition)[keyof typeof StaffPosition]
@@ -53,6 +54,7 @@ export type ClientAccessStatus = (typeof ClientAccessStatus)[keyof typeof Client
 
 
 export const AppointmentStatus = {
+  PENDING: 'PENDING',
   CONFIRMED: 'CONFIRMED',
   RESCHEDULED: 'RESCHEDULED',
   CANCELLED: 'CANCELLED',
@@ -79,6 +81,8 @@ export const ActionType = {
   RESCHEDULED_BY_ADMIN: 'RESCHEDULED_BY_ADMIN',
   CANCELLED_BY_PROSPECT: 'CANCELLED_BY_PROSPECT',
   CANCELLED_BY_ADMIN: 'CANCELLED_BY_ADMIN',
+  ACCEPTED_BY_ADMIN: 'ACCEPTED_BY_ADMIN',
+  REJECTED_BY_ADMIN: 'REJECTED_BY_ADMIN',
   MARKED_COMPLETED_BY_ADMIN: 'MARKED_COMPLETED_BY_ADMIN',
   CONFIRMATION_EMAIL_SENT: 'CONFIRMATION_EMAIL_SENT',
   REMINDER_24H_SENT: 'REMINDER_24H_SENT',
@@ -105,6 +109,57 @@ export const AssessmentInstanceStatus = {
 } as const
 
 export type AssessmentInstanceStatus = (typeof AssessmentInstanceStatus)[keyof typeof AssessmentInstanceStatus]
+
+
+export const LeadStatus = {
+  NEW_PROSPECT: 'NEW_PROSPECT',
+  NO_ANSWER: 'NO_ANSWER',
+  GATEKEEPER_REACHED: 'GATEKEEPER_REACHED',
+  DECISION_MAKER_REACHED: 'DECISION_MAKER_REACHED',
+  CALLBACK_REQUIRED: 'CALLBACK_REQUIRED',
+  INTERESTED: 'INTERESTED',
+  ZOOM_SCHEDULED: 'ZOOM_SCHEDULED',
+  APPOINTMENT_COMPLETED: 'APPOINTMENT_COMPLETED',
+  PROPOSAL_SENT: 'PROPOSAL_SENT',
+  CLIENT_ACQUIRED: 'CLIENT_ACQUIRED',
+  NOT_INTERESTED: 'NOT_INTERESTED',
+  NOT_QUALIFIED: 'NOT_QUALIFIED',
+  DO_NOT_CONTACT: 'DO_NOT_CONTACT'
+} as const
+
+export type LeadStatus = (typeof LeadStatus)[keyof typeof LeadStatus]
+
+
+export const AnnualGrossRevenueKind = {
+  REPORTED: 'REPORTED',
+  ESTIMATED: 'ESTIMATED',
+  UNKNOWN: 'UNKNOWN'
+} as const
+
+export type AnnualGrossRevenueKind = (typeof AnnualGrossRevenueKind)[keyof typeof AnnualGrossRevenueKind]
+
+
+export const ExistingSalesForce = {
+  YES: 'YES',
+  NO: 'NO',
+  UNKNOWN: 'UNKNOWN'
+} as const
+
+export type ExistingSalesForce = (typeof ExistingSalesForce)[keyof typeof ExistingSalesForce]
+
+
+export const LeadActivityType = {
+  NOTE: 'NOTE',
+  CALL: 'CALL',
+  EMAIL: 'EMAIL',
+  MEETING: 'MEETING',
+  FOLLOW_UP_SCHEDULED: 'FOLLOW_UP_SCHEDULED',
+  FOLLOW_UP_COMPLETED: 'FOLLOW_UP_COMPLETED',
+  APPOINTMENT_COMPLETED: 'APPOINTMENT_COMPLETED',
+  REASSIGNED: 'REASSIGNED'
+} as const
+
+export type LeadActivityType = (typeof LeadActivityType)[keyof typeof LeadActivityType]
 
 
 export const ImprovementStatus = {

@@ -29,6 +29,13 @@ export class AdminAssessmentsService {
   async create(dto: CreateAssessmentDto): Promise<AssessmentModel> {
     const status = (dto.status ?? "DRAFT") as AssessmentStatus;
     try {
+      let isClientPrimary = false;
+      if (status === "PUBLISHED") {
+        const existingPrimary = await this.prisma.assessment.count({
+          where: { isClientPrimary: true },
+        });
+        isClientPrimary = existingPrimary === 0;
+      }
       return await this.prisma.assessment.create({
         data: {
           slug: dto.slug.trim(),
@@ -36,6 +43,7 @@ export class AdminAssessmentsService {
           status,
           document: dto.document as unknown as Prisma.InputJsonValue,
           publishedAt: status === "PUBLISHED" ? new Date() : null,
+          isClientPrimary,
         },
       });
     } catch (error) {
@@ -104,13 +112,25 @@ export class AdminAssessmentsService {
       throw new BadRequestException("Assessment is already in this status");
     }
 
+    let becomePrimary = false;
+    if (nextStatus === "PUBLISHED" && !assessment.isClientPrimary) {
+      const existingPrimary = await this.prisma.assessment.count({
+        where: { isClientPrimary: true },
+      });
+      // First published assessment (or any publish when none is primary)
+      // becomes the default Primary shown on client dashboards.
+      becomePrimary = existingPrimary === 0;
+    }
+
     const updated = await this.prisma.assessment.update({
       where: { id },
       data: {
         status: nextStatus,
         // Draft/archived assessments cannot stay as the client-facing primary.
         isClientPrimary:
-          nextStatus === "PUBLISHED" ? assessment.isClientPrimary : false,
+          nextStatus === "PUBLISHED"
+            ? assessment.isClientPrimary || becomePrimary
+            : false,
         publishedAt:
           nextStatus === "PUBLISHED"
             ? (assessment.publishedAt ?? new Date())
@@ -134,6 +154,21 @@ export class AdminAssessmentsService {
         targetType: "Assessment",
         targetId: updated.id,
       });
+
+      // If we unpublish the Primary, promote the oldest remaining published
+      // assessment so clients always have a default.
+      if (assessment.isClientPrimary) {
+        const fallback = await this.prisma.assessment.findFirst({
+          where: { status: "PUBLISHED", id: { not: id } },
+          orderBy: [{ publishedAt: "asc" }, { createdAt: "asc" }],
+        });
+        if (fallback) {
+          await this.prisma.assessment.update({
+            where: { id: fallback.id },
+            data: { isClientPrimary: true },
+          });
+        }
+      }
     }
 
     return updated;
@@ -191,8 +226,10 @@ export class AdminAssessmentsService {
     return updated;
   }
 
-  async remove(id: string): Promise<{ deleted: boolean; id: string }> {
-    await this.detail(id);
+  async remove(
+    id: string,
+  ): Promise<{ deleted: boolean; id: string; slug: string }> {
+    const assessment = await this.detail(id);
 
     const instanceCount = await this.prisma.assessmentInstance.count({
       where: { assessmentId: id },
@@ -218,7 +255,7 @@ export class AdminAssessmentsService {
       throw error;
     }
 
-    return { deleted: true, id };
+    return { deleted: true, id, slug: assessment.slug };
   }
 
   private buildWhere(

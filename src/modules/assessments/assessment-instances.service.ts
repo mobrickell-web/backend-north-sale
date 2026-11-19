@@ -103,78 +103,13 @@ export class AssessmentInstancesService {
     clientId: string,
     options: { assessmentId?: string; slug?: string } = {},
   ) {
-    await this.assertClientAccount(clientId);
-    const assessment = await this.resolvePublishedAssessment(options);
-    const existing = await this.prisma.assessmentInstance.findUnique({
-      where: {
-        uq_assessment_instance_client_assessment: {
-          clientId,
-          assessmentId: assessment.id,
-        },
-      },
-      include: { assessment: true },
-    });
-
-    if (existing) {
-      if (existing.status === AssessmentInstanceStatus.COMPLETED) {
-        const document = this.scoring.parseDocument(
-          existing.assessment.document,
-        );
-        if (!document.settings.allowRetake) {
-          throw new ConflictException(
-            "This assessment is already completed and retakes are not allowed",
-          );
-        }
-        const reset = await this.prisma.assessmentInstance.update({
-          where: { id: existing.id },
-          data: {
-            status: AssessmentInstanceStatus.IN_PROGRESS,
-            answers: Prisma.DbNull,
-            result: Prisma.DbNull,
-            completedBy: null,
-            onBehalfOf: null,
-            submittedAt: null,
-            onBehalfTokenHash: null,
-            tokenExpiresAt: null,
-          },
-          include: { assessment: true },
-        });
-        await this.writeAudit({
-          actorId: clientId,
-          action: AuditAction.UPDATE,
-          targetId: reset.id,
-          clientId,
-        });
-        return this.toClientPayloadWithHistory(clientId, reset);
-      }
-
-      if (existing.status === AssessmentInstanceStatus.PENDING) {
-        const started = await this.prisma.assessmentInstance.update({
-          where: { id: existing.id },
-          data: { status: AssessmentInstanceStatus.IN_PROGRESS },
-          include: { assessment: true },
-        });
-        return this.toClientPayloadWithHistory(clientId, started);
-      }
-
-      return this.toClientPayloadWithHistory(clientId, existing);
-    }
-
-    const created = await this.prisma.assessmentInstance.create({
-      data: {
-        clientId,
-        assessmentId: assessment.id,
-        status: AssessmentInstanceStatus.IN_PROGRESS,
-      },
-      include: { assessment: true },
-    });
-    await this.writeAudit({
-      actorId: clientId,
-      action: AuditAction.CREATE,
-      targetId: created.id,
-      clientId,
-    });
-    return this.toClientPayloadWithHistory(clientId, created);
+    // Clients never self-start or retake — Admin / sales reps create
+    // instances and complete them via the on-behalf Zoom flow.
+    void clientId;
+    void options;
+    throw new ForbiddenException(
+      "Clients cannot start assessments. An Admin or sales representative must complete the assessment on your behalf.",
+    );
   }
 
   async submitForClient(
@@ -182,15 +117,12 @@ export class AssessmentInstancesService {
     instanceId: string,
     answers: RawAnswers,
   ) {
-    const instance = await this.requireClientInstance(clientId, instanceId);
-    const completed = await this.completeInstance({
-      instance,
-      answers,
-      actorId: clientId,
-      onBehalfOf: null,
-    });
-    const history = await this.listClientInstanceHistory(clientId);
-    return { ...completed, history };
+    void clientId;
+    void instanceId;
+    void answers;
+    throw new ForbiddenException(
+      "Clients cannot submit assessments. An Admin or sales representative must complete the assessment on your behalf.",
+    );
   }
 
   /** Load one of the client's own instances (for results dashboard). */

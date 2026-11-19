@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, IsIn, IsString, MaxLength, MinLength } from "class-validator";
 import type { StaffPosition } from "../../../generated/prisma/enums";
-import { STAFF_POSITIONS } from "../auth.constants";
+import { STAFF_POSITION_LABELS, STAFF_POSITIONS } from "../auth.constants";
 
 export class CreateRepresentativeDto {
   @ApiProperty({ example: "Jordan Lee", maxLength: 120 })
@@ -27,7 +27,11 @@ export class CreateRepresentativeDto {
 
   @ApiProperty({
     enum: STAFF_POSITIONS,
-    description: "Staff position assigned by the Master Admin",
+    example: "EXECUTIVE_ACCOUNT_DEVELOPMENT_SPECIALIST",
+    description:
+      "Staff position assigned by the Master Admin. " +
+      `EADS CRM specialists use EXECUTIVE_ACCOUNT_DEVELOPMENT_SPECIALIST ` +
+      `(${STAFF_POSITION_LABELS.EXECUTIVE_ACCOUNT_DEVELOPMENT_SPECIALIST}).`,
   })
   @IsIn(STAFF_POSITIONS)
   position!: StaffPosition;

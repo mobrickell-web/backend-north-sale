@@ -55,6 +55,8 @@ export class AppointmentsService {
         durationMinutes,
         scheduledAtUtc,
         prospectTimezone: dto.timezone,
+        // A6 — website form bookings wait for Master Admin accept.
+        status: "PENDING",
       },
     });
 
@@ -63,12 +65,17 @@ export class AppointmentsService {
       "BOOKED",
       null,
       scheduledAtUtc,
-      "Booked via website form",
+      "Booked via website form — pending admin approval",
     );
 
-    void this.sendBookingEmails(appointment);
+    // Confirmation emails send only after Admin accepts (A6).
 
     return appointment;
+  }
+
+  /** A6 — expose booking confirmation mail for Admin accept. */
+  sendAcceptedBookingEmails(appointment: AppointmentModel): void {
+    void this.sendBookingEmails(appointment);
   }
 
   async manage(token: string): Promise<AppointmentModel> {
@@ -279,7 +286,8 @@ export class AppointmentsService {
 
     const candidates = await this.prisma.appointment.findMany({
       where: {
-        status: { in: ["CONFIRMED", "RESCHEDULED"] },
+        // PENDING holds the slot until Admin accepts or rejects (A6).
+        status: { in: ["PENDING", "CONFIRMED", "RESCHEDULED"] },
         scheduledAtUtc: { gte: windowStart, lt: windowEnd },
         ...(excludeId ? { id: { not: excludeId } } : {}),
       },
@@ -302,8 +310,13 @@ export class AppointmentsService {
   }
 
   /** Rescheduling may revive a cancelled appointment, so only the terminal
-   *  post-meeting states are frozen. */
+   *  post-meeting states are frozen. Pending bookings must be accepted first. */
   private assertReschedulable(status: AppointmentStatus): void {
+    if (status === "PENDING") {
+      throw new ConflictException(
+        "This appointment is awaiting admin approval and cannot be rescheduled yet",
+      );
+    }
     if (status === "COMPLETED" || status === "NO_SHOW") {
       throw new ConflictException("This appointment can no longer be changed");
     }

@@ -55,9 +55,10 @@ export class ClientAssessmentController {
   @Post("start")
   @HttpCode(201)
   @ApiOperation({
-    summary: "Self-start (or resume) the client assessment instance",
+    summary:
+      "Disabled — clients cannot self-start; Admin/sales create instances",
   })
-  @ApiCreatedResponse({ description: "Instance started" })
+  @ApiCreatedResponse({ description: "Always forbidden for clients" })
   start(
     @CurrentUser() user: AdminAuth,
     @Body() dto: CreateAssessmentInstanceDto,
@@ -83,9 +84,9 @@ export class ClientAssessmentController {
   @Post(":instanceId/submit")
   @HttpCode(200)
   @ApiOperation({
-    summary: "Submit answers; server scores and stores client-safe result",
+    summary: "Disabled — clients cannot submit; use Admin on-behalf completion",
   })
-  @ApiOkResponse({ description: "Completed assessment with result" })
+  @ApiOkResponse({ description: "Always forbidden for clients" })
   submit(
     @CurrentUser() user: AdminAuth,
     @Param("instanceId", ParseUUIDPipe) instanceId: string,

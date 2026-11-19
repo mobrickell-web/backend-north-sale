@@ -5,6 +5,7 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
+  Post,
   Query,
   UseGuards,
 } from "@nestjs/common";
@@ -24,6 +25,7 @@ import type { AdminAuth } from "../../../common/interfaces/admin-auth.interface"
 import { AdminAppointmentsService } from "./admin-appointments.service";
 import {
   AdminAppointmentQueryDto,
+  AdminRejectAppointmentDto,
   AdminStatusUpdateDto,
 } from "./dto/admin-appointment.dto";
 
@@ -39,7 +41,8 @@ export class AdminAppointmentsController {
 
   @Get()
   @ApiOperation({
-    summary: "List appointments (tabs: upcoming | completed | cancelled)",
+    summary:
+      "List appointments (tabs: pending | upcoming | completed | cancelled). pending = website booking queue (A6).",
   })
   @ApiOkResponse({ description: "Paginated list of appointments" })
   list(@Query() query: AdminAppointmentQueryDto) {
@@ -56,9 +59,37 @@ export class AdminAppointmentsController {
     return this.adminAppointmentsService.detail(id);
   }
 
+  @Post(":id/accept")
+  @ApiOperation({
+    summary:
+      "A6 — Accept a pending website booking (→ CONFIRMED + confirmation emails). Master Admin only.",
+  })
+  @ApiOkResponse({ description: "Accepted appointment (CONFIRMED)" })
+  accept(
+    @Param("id", ParseUUIDPipe) id: string,
+    @CurrentUser() admin: AdminAuth,
+  ) {
+    return this.adminAppointmentsService.accept(id, admin);
+  }
+
+  @Post(":id/reject")
+  @ApiOperation({
+    summary:
+      "A6 — Reject a pending website booking (→ CANCELLED). Master Admin only.",
+  })
+  @ApiOkResponse({ description: "Rejected appointment (CANCELLED)" })
+  reject(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() dto: AdminRejectAppointmentDto,
+    @CurrentUser() admin: AdminAuth,
+  ) {
+    return this.adminAppointmentsService.reject(id, dto, admin);
+  }
+
   @Patch(":id/status")
   @ApiOperation({
-    summary: "Mark an appointment COMPLETED or CANCELLED (admin action)",
+    summary:
+      "Mark a confirmed appointment COMPLETED or CANCELLED (admin action). Pending bookings use accept/reject.",
   })
   @ApiOkResponse({ description: "Updated appointment" })
   changeStatus(

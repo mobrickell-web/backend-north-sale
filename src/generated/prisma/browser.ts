@@ -108,6 +108,21 @@ export type AssessmentInstance = Prisma.AssessmentInstanceModel
  */
 export type Lead = Prisma.LeadModel
 /**
+ * Model LeadContact
+ * 
+ */
+export type LeadContact = Prisma.LeadContactModel
+/**
+ * Model LeadActivity
+ * 
+ */
+export type LeadActivity = Prisma.LeadActivityModel
+/**
+ * Model LeadFollowUp
+ * 
+ */
+export type LeadFollowUp = Prisma.LeadFollowUpModel
+/**
  * Model AssessmentResult
  * 
  */

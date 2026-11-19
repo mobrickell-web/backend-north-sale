@@ -10,6 +10,8 @@ import type { Request, Response } from "express";
 
 interface ErrorBody {
   message?: string | string[];
+  code?: string;
+  duplicates?: unknown;
 }
 
 @Catch()
@@ -27,14 +29,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
     let message: string | string[] = "Internal server error";
+    let code: string | undefined;
+    let duplicates: unknown;
 
     if (exception instanceof HttpException) {
       const res = exception.getResponse();
       if (typeof res === "string") {
         message = res;
       } else if (typeof res === "object" && res !== null) {
-        const extracted = (res as ErrorBody).message;
-        if (extracted) message = extracted;
+        const body = res as ErrorBody;
+        if (body.message) message = body.message;
+        if (typeof body.code === "string") code = body.code;
+        if (body.duplicates !== undefined) duplicates = body.duplicates;
       }
     } else if (exception instanceof Error) {
       message = exception.message;
@@ -45,6 +51,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
       status: false,
       message,
       statusCode: status,
+      ...(code ? { code } : {}),
+      ...(duplicates !== undefined ? { duplicates } : {}),
       path: request.url,
       method: request.method,
       meta: {

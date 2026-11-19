@@ -235,13 +235,14 @@ export class AssessmentScoringService {
         return value;
       }
       case "five-point-scale": {
+        // Same 1–10 point UI as scale (admin + frontend).
         const value = Number(raw);
-        if (!Number.isInteger(value) || value < 1 || value > 5) {
+        if (!Number.isInteger(value) || value < 1 || value > 10) {
           throw new BadRequestException(
             `Invalid five-point answer for ${question.id}`,
           );
         }
-        return value * 2;
+        return value;
       }
       case "yes-no": {
         if (raw === true || raw === "yes" || raw === "Yes" || raw === 1) {

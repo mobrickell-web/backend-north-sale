@@ -233,8 +233,10 @@ import type { AppointmentStatus } from "../../../generated/prisma/enums";
 import type { AppointmentModel } from "../../../generated/prisma/models";
 import type { AdminAuth } from "../../../common/interfaces/admin-auth.interface";
 import { PrismaService } from "../../../database/prisma.service";
+import { AppointmentsService } from "../appointments.service";
 import {
   AdminAppointmentQueryDto,
+  AdminRejectAppointmentDto,
   AdminStatusUpdateDto,
 } from "./dto/admin-appointment.dto";
 
@@ -273,7 +275,10 @@ export type AdminAppointmentRow = AppointmentModel & {
 
 @Injectable()
 export class AdminAppointmentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly appointmentsService: AppointmentsService,
+  ) {}
 
   async list(query: AdminAppointmentQueryDto) {
     const where = this.buildWhere(query);
@@ -370,6 +375,86 @@ export class AdminAppointmentsService {
     };
   }
 
+  /**
+   * A6 — accept a pending website booking → CONFIRMED + confirmation emails.
+   * Does not touch sales-rep manual Lead.appointmentAt entries.
+   */
+  async accept(id: string, admin: AdminAuth): Promise<AppointmentModel> {
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id },
+    });
+    if (!appointment) {
+      throw new NotFoundException("Appointment not found");
+    }
+    if (appointment.status !== "PENDING") {
+      throw new BadRequestException(
+        "Only pending website bookings can be accepted",
+      );
+    }
+
+    const updated = await this.prisma.appointment.update({
+      where: { id: appointment.id },
+      data: { status: "CONFIRMED" },
+    });
+
+    await this.prisma.appointmentLog.create({
+      data: {
+        appointmentId: appointment.id,
+        adminUserId: admin.id,
+        action: "ACCEPTED_BY_ADMIN",
+        previousTime: appointment.scheduledAtUtc,
+        newTime: appointment.scheduledAtUtc,
+        notes: "Website booking accepted by Master Admin",
+      },
+    });
+
+    this.appointmentsService.sendAcceptedBookingEmails(updated);
+    return updated;
+  }
+
+  /**
+   * A6 — reject a pending website booking → CANCELLED (frees the slot).
+   */
+  async reject(
+    id: string,
+    dto: AdminRejectAppointmentDto,
+    admin: AdminAuth,
+  ): Promise<AppointmentModel> {
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id },
+    });
+    if (!appointment) {
+      throw new NotFoundException("Appointment not found");
+    }
+    if (appointment.status !== "PENDING") {
+      throw new BadRequestException(
+        "Only pending website bookings can be rejected",
+      );
+    }
+
+    const reason = dto.reason?.trim() || "Rejected by Master Admin";
+    const updated = await this.prisma.appointment.update({
+      where: { id: appointment.id },
+      data: {
+        status: "CANCELLED",
+        cancellationReason: reason,
+      },
+    });
+
+    await this.prisma.appointmentLog.create({
+      data: {
+        appointmentId: appointment.id,
+        adminUserId: admin.id,
+        action: "REJECTED_BY_ADMIN",
+        previousTime: appointment.scheduledAtUtc,
+        newTime: null,
+        notes: reason,
+      },
+    });
+
+    return updated;
+  }
+
   async changeStatus(
     id: string,
     dto: AdminStatusUpdateDto,
@@ -380,6 +465,11 @@ export class AdminAppointmentsService {
     });
     if (!appointment) {
       throw new NotFoundException("Appointment not found");
+    }
+    if (appointment.status === "PENDING") {
+      throw new BadRequestException(
+        "Pending website bookings must be accepted or rejected first",
+      );
     }
     if (appointment.status === "CANCELLED") {
       throw new ConflictException("Cancelled appointments cannot be changed");
@@ -420,7 +510,9 @@ export class AdminAppointmentsService {
   ): Prisma.AppointmentWhereInput {
     const where: Prisma.AppointmentWhereInput = {};
 
-    if (query.status === "upcoming") {
+    if (query.status === "pending") {
+      where.status = "PENDING";
+    } else if (query.status === "upcoming") {
       where.status = { in: ["CONFIRMED", "RESCHEDULED"] };
       where.scheduledAtUtc = { gte: new Date() };
     } else if (query.status === "completed") {

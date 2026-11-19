@@ -14,6 +14,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import {
+  ApiBody,
   ApiConflictResponse,
   ApiOperation,
   ApiSecurity,
@@ -38,6 +39,7 @@ import { SignupDto } from "./dto/signup.dto";
 import { UpdatePasswordDto } from "./dto/update-password.dto";
 import { CreateRepresentativeDto } from "./dto/create-representative.dto";
 import { CreateClientDto } from "./dto/create-client.dto";
+import { PauseAccessDto } from "./dto/pause-access.dto";
 import { LocalAuthGuard } from "./guards/local-auth.guard";
 
 const REFRESH_COOKIE_NAME = "north_admin_refresh_token";
@@ -126,17 +128,14 @@ export class AuthController {
     };
   }
 
-  /**
-   * Public client access request. It creates a USER account whose access
-   * request stays PENDING until the Master Admin approves it, so signing up
-   * never grants access on its own.
-   */
   @Post("signup")
   @HttpCode(HttpStatus.ACCEPTED)
   @Throttle({ default: { limit: 3, ttl: 60_000 } })
   @ApiOperation({
-    summary: "Request client access and send an email verification code",
+    summary:
+      "Request client access — creates a USER account (pending Admin approval) and sends email verification",
   })
+  @ApiBody({ type: SignupDto })
   signup(@Body() dto: SignupDto): Promise<{ message: string }> {
     return this.authService.signup(dto);
   }
@@ -273,7 +272,10 @@ export class AuthController {
   @Get("admin/representatives")
   @UseGuards(JwtAuthGuard, SuperAdminGuard)
   @ApiSecurity("access-cookie")
-  @ApiOperation({ summary: "List sales representative accounts" })
+  @ApiOperation({
+    summary:
+      "List staff accounts (EADS, Implementation Specialist, Fractional VP, Regional Sales Manager)",
+  })
   listRepresentatives() {
     return this.authService.listRepresentatives();
   }
@@ -324,13 +326,15 @@ export class AuthController {
   @UseGuards(JwtAuthGuard, SuperAdminGuard)
   @ApiSecurity("access-cookie")
   @ApiOperation({
-    summary: "Revoke approved client access and revoke all active sessions",
+    summary:
+      "Pause approved client access (with required comment) and revoke sessions. Accounts are never deleted.",
   })
   deactivateClient(
     @Param("id", ParseUUIDPipe) id: string,
+    @Body() dto: PauseAccessDto,
     @CurrentUser() admin: AdminAuth,
   ) {
-    return this.authService.deactivateClient(id, admin.id);
+    return this.authService.deactivateClient(id, admin.id, dto.reason);
   }
 
   @Post("admin/clients/:id/access/restore")
@@ -348,7 +352,10 @@ export class AuthController {
   @Post("admin/representatives")
   @UseGuards(JwtAuthGuard, SuperAdminGuard)
   @ApiSecurity("access-cookie")
-  @ApiOperation({ summary: "Create a sales representative account" })
+  @ApiOperation({
+    summary:
+      "Create a staff account by position (incl. Executive Account Development Specialist)",
+  })
   createRepresentative(@Body() dto: CreateRepresentativeDto) {
     return this.authService.createRepresentative(dto);
   }
@@ -358,10 +365,14 @@ export class AuthController {
   @UseGuards(JwtAuthGuard, SuperAdminGuard)
   @ApiSecurity("access-cookie")
   @ApiOperation({
-    summary: "Deactivate a representative and revoke their sessions",
+    summary:
+      "Pause a team member account (with required comment) and revoke sessions. Accounts are never deleted.",
   })
-  deactivateRepresentative(@Param("id", ParseUUIDPipe) id: string) {
-    return this.authService.deactivateRepresentative(id);
+  deactivateRepresentative(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() dto: PauseAccessDto,
+  ) {
+    return this.authService.deactivateRepresentative(id, dto.reason);
   }
 
   @Post("admin/representatives/:id/restore")

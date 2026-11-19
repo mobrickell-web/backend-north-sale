@@ -78,17 +78,56 @@ export class RepOrAdminGuard implements CanActivate {
   }
 }
 
-/** Allows only sales representatives whose position is Account Executive. */
+/**
+ * Allows only sales representatives whose position is EADS
+ * (Executive Account Development Specialist).
+ */
 @Injectable()
-export class AccountExecutiveGuard implements CanActivate {
+export class EadsGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     if (
       request.user?.role !== Role.SALES_REPRESENTATIVE ||
-      request.user.position !== StaffPosition.ACCOUNT_EXECUTIVE
+      request.user.position !==
+        StaffPosition.EXECUTIVE_ACCOUNT_DEVELOPMENT_SPECIALIST
     ) {
-      throw new ForbiddenException("Account Executive access required");
+      throw new ForbiddenException(
+        "Executive Account Development Specialist access required",
+      );
     }
     return true;
+  }
+}
+
+/** @deprecated Use EadsGuard — kept as alias during A7 rename. */
+export const AccountExecutiveGuard = EadsGuard;
+
+/**
+ * CRM (Doc A): Master Admin or any Sales Representative.
+ * List/update scoping (own vs all) is enforced in LeadsService.
+ */
+@Injectable()
+export class CrmStaffGuard implements CanActivate {
+  constructor(private readonly audit: AuditService) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const role = request.user?.role;
+    if (role === Role.SUPER_ADMIN || role === Role.SALES_REPRESENTATIVE) {
+      return true;
+    }
+
+    if (request.user?.id) {
+      await this.audit.write({
+        actorId: request.user.id,
+        action: AuditAction.ACCESS_DENY,
+        targetType: "Permission",
+        targetId: request.user.id,
+        clientId: role === Role.USER ? request.user.id : null,
+      });
+    }
+    throw new ForbiddenException(
+      "CRM access requires Master Admin or Sales Representative",
+    );
   }
 }

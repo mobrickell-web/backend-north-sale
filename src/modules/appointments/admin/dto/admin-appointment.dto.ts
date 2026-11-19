@@ -11,10 +11,20 @@ import {
   Min,
 } from "class-validator";
 
-export const ADMIN_TABS = ["upcoming", "completed", "cancelled"] as const;
+export const ADMIN_TABS = [
+  "pending",
+  "upcoming",
+  "completed",
+  "cancelled",
+] as const;
 
 export class AdminAppointmentQueryDto {
-  @ApiPropertyOptional({ enum: [...ADMIN_TABS], example: "upcoming" })
+  @ApiPropertyOptional({
+    enum: [...ADMIN_TABS],
+    example: "pending",
+    description:
+      "pending = website bookings awaiting accept/reject (A6); upcoming = confirmed/rescheduled future",
+  })
   @IsOptional()
   @IsIn(ADMIN_TABS)
   status?: string;
@@ -67,6 +77,18 @@ export class AdminStatusUpdateDto {
   status!: string;
 
   @ApiPropertyOptional({ example: "Meeting done" })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reason?: string;
+}
+
+/** A6 — reject a pending website booking. */
+export class AdminRejectAppointmentDto {
+  @ApiPropertyOptional({
+    example: "Requested time no longer available",
+    maxLength: 500,
+  })
   @IsOptional()
   @IsString()
   @MaxLength(500)

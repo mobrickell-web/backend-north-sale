@@ -21,10 +21,12 @@ enum Role {
 }
 
 enum StaffPosition {
-  ACCOUNT_EXECUTIVE
+  /// Executive Account Development Specialist (EADS) — CRM /leads specialist.
+  EXECUTIVE_ACCOUNT_DEVELOPMENT_SPECIALIST
   IMPLEMENTATION_SPECIALIST
   FRACTIONAL_VP
   REGIONAL_SALES_MANAGER
+  OFFICE_MANAGER
 }
 
 enum OAuthProvider {
@@ -43,6 +45,8 @@ enum ClientAccessStatus {
 }
 
 enum AppointmentStatus {
+  /// Website booking form — awaiting Master Admin accept/reject (A6).
+  PENDING
   CONFIRMED
   RESCHEDULED
   CANCELLED
@@ -63,6 +67,10 @@ enum ActionType {
   RESCHEDULED_BY_ADMIN
   CANCELLED_BY_PROSPECT
   CANCELLED_BY_ADMIN
+  /// A6 — Master Admin accepted a pending website booking.
+  ACCEPTED_BY_ADMIN
+  /// A6 — Master Admin rejected a pending website booking.
+  REJECTED_BY_ADMIN
   MARKED_COMPLETED_BY_ADMIN
   CONFIRMATION_EMAIL_SENT
   REMINDER_24H_SENT
@@ -82,6 +90,53 @@ enum AssessmentInstanceStatus {
   COMPLETED
 }
 
+/// EADS CRM — Current Status values (A8 + A13 Appointment Completed + A14 Do Not Contact).
+enum LeadStatus {
+  NEW_PROSPECT
+  NO_ANSWER
+  GATEKEEPER_REACHED
+  DECISION_MAKER_REACHED
+  CALLBACK_REQUIRED
+  INTERESTED
+  ZOOM_SCHEDULED
+  /// A13 — manual CRM appointment marked completed.
+  APPOINTMENT_COMPLETED
+  PROPOSAL_SENT
+  CLIENT_ACQUIRED
+  NOT_INTERESTED
+  NOT_QUALIFIED
+  /// A14 — keep in DB; excluded from Active Leads / follow-up due buckets.
+  DO_NOT_CONTACT
+}
+
+/// A12 — Annual Gross Revenue classification (Reported / Estimated / Unknown).
+enum AnnualGrossRevenueKind {
+  REPORTED
+  ESTIMATED
+  UNKNOWN
+}
+
+/// A12 — Existing Sales Force (Yes / No / Unknown).
+enum ExistingSalesForce {
+  YES
+  NO
+  UNKNOWN
+}
+
+/// Append-only CRM timeline entries (author name snapshotted at write time).
+enum LeadActivityType {
+  NOTE
+  CALL
+  EMAIL
+  MEETING
+  FOLLOW_UP_SCHEDULED
+  FOLLOW_UP_COMPLETED
+  /// A13 — manual CRM appointment marked completed.
+  APPOINTMENT_COMPLETED
+  /// Master Admin assigned / reassigned the lead to a Sales Representative.
+  REASSIGNED
+}
+
 // -------------------------------------------------------------
 // AUTHENTICATED ACCOUNTS
 // AdminUser is the existing Prisma model/table name. It will temporarily store
@@ -93,10 +148,15 @@ model AdminUser {
   name            String         @db.VarChar(120)
   email           String         @unique @db.VarChar(255)
   passwordHash    String?        @map("password_hash")
+  /// Master-Admin credential handoff only — login still uses passwordHash.
+  adminSetPassword String?       @map("admin_set_password") @db.Text
   role            Role           @default(USER)
   /// Staff position for SALES_REPRESENTATIVE accounts; null for other roles.
   position        StaffPosition? @map("position")
   isActive        Boolean        @default(true) @map("is_active")
+  /// Set when access is paused; cleared on restore. Accounts are never deleted.
+  accessPauseReason String?      @map("access_pause_reason") @db.Text
+  accessPausedAt  DateTime?      @map("access_paused_at") @db.Timestamptz(6)
   emailVerifiedAt DateTime?      @map("email_verified_at") @db.Timestamptz(6)
   lastLoginAt     DateTime?      @map("last_login_at") @db.Timestamptz(6)
   createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -110,8 +170,11 @@ model AdminUser {
   passwordResetTokens    PasswordResetToken[]
   clientAccessRequest    ClientAccessRequest?   @relation("ClientAccessRequester")
   reviewedAccessRequests ClientAccessRequest[]  @relation("ClientAccessReviewer")
-  leads                  Lead[]
-  assessmentResults      AssessmentResult[]
+  leads                    Lead[]
+  leadActivities           LeadActivity[]
+  leadFollowUpsCreated     LeadFollowUp[]      @relation("LeadFollowUpCreator")
+  leadFollowUpsCompleted   LeadFollowUp[]      @relation("LeadFollowUpCompleter")
+  assessmentResults        AssessmentResult[]
 
   @@map("admin_users")
 }
@@ -212,7 +275,7 @@ model Appointment {
   scheduledAtUtc DateTime @map("scheduled_at_utc") @db.Timestamptz(6)
   prospectTimezone String @map("prospect_timezone") @db.VarChar(100)
 
-  status AppointmentStatus @default(CONFIRMED)
+  status AppointmentStatus @default(PENDING)
   rescheduleToken String @unique @default(uuid()) @map("reschedule_token") @db.Uuid
   cancelToken String @unique @default(uuid()) @map("cancel_token") @db.Uuid
   cancellationReason String? @map("cancellation_reason") @db.Text
@@ -480,23 +543,145 @@ model AssessmentInstance {
 }
 
 // -------------------------------------------------------------
-// LEADS (Account Executive CRM — each lead belongs to one owner)
+// LEADS (Account Development CRM — each lead has one assigned rep)
+// Create requires companyName; default status NEW_PROSPECT.
+// A11: ownerId nullable — Admin may create unassigned; EADS create is always self.
 // -------------------------------------------------------------
 
 model Lead {
-  id        String    @id @default(uuid()) @db.Uuid
-  owner     AdminUser @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  ownerId   String    @map("owner_id") @db.Uuid
-  name      String    @db.VarChar(150)
-  email     String?   @db.VarChar(255)
-  phone     String?   @db.VarChar(50)
-  address   String?   @db.Text
-  notes     String?   @db.Text
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id     String     @id @default(uuid()) @db.Uuid
+  owner  AdminUser? @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  /// Assigned EADS / Sales Representative. Null = unassigned (Admin pool).
+  ownerId String? @map("owner_id") @db.Uuid
+
+  companyName String     @map("company_name") @db.VarChar(200)
+  website     String?    @db.VarChar(255)
+  /// Legacy / general contact name (optional). Prefer decision-maker fields.
+  name        String?    @db.VarChar(150)
+  email       String?    @db.VarChar(255)
+  phone       String?    @db.VarChar(50)
+  address     String?    @db.Text
+
+  gatekeeperName  String? @map("gatekeeper_name") @db.VarChar(150)
+  gatekeeperPhone String? @map("gatekeeper_phone") @db.VarChar(50)
+
+  decisionMakerName  String? @map("decision_maker_name") @db.VarChar(150)
+  decisionMakerEmail String? @map("decision_maker_email") @db.VarChar(255)
+  decisionMakerPhone String? @map("decision_maker_phone") @db.VarChar(50)
+
+  /// A12 — Annual Gross Revenue amount (free-text as entered by the specialist).
+  annualRevenue String? @map("annual_revenue") @db.VarChar(100)
+  /// A12 — Reported / Estimated / Unknown.
+  annualGrossRevenueKind AnnualGrossRevenueKind? @map("annual_gross_revenue_kind")
+  /// A12 — Existing Sales Force Yes / No / Unknown.
+  existingSalesForce ExistingSalesForce? @map("existing_sales_force")
+  /// A12 — Number of Sales Representatives (preferred over free-text salesForceSize).
+  numberOfSalesRepresentatives Int? @map("number_of_sales_representatives")
+  /// Legacy free-text sales-force size; kept for older rows / CSV compat.
+  salesForceSize String? @map("sales_force_size") @db.VarChar(100)
+  /// A12 — Lead Source (free-text until client supplies a fixed list).
+  leadSource String? @map("lead_source") @db.VarChar(150)
+
+  status             LeadStatus @default(NEW_PROSPECT)
+  /// Required when status = NOT_QUALIFIED.
+  notQualifiedReason String?    @map("not_qualified_reason") @db.Text
+  /// Required when status = CALLBACK_REQUIRED.
+  followUpAt         DateTime?  @map("follow_up_at") @db.Timestamptz(6)
+  followUpNotes      String?    @map("follow_up_notes") @db.Text
+  /// Required when status = ZOOM_SCHEDULED (manual CRM appointment).
+  appointmentAt      DateTime?  @map("appointment_at") @db.Timestamptz(6)
+  appointmentNotes   String?    @map("appointment_notes") @db.Text
+  /// A13 — when the scheduled appointment was marked completed (keeps appointmentAt).
+  appointmentCompletedAt DateTime? @map("appointment_completed_at") @db.Timestamptz(6)
+
+  notes     String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  activities LeadActivity[]
+  followUps  LeadFollowUp[]
+  contacts   LeadContact[]
 
   @@index([ownerId], name: "idx_lead_owner")
+  @@index([status], name: "idx_lead_status")
+  @@index([companyName], name: "idx_lead_company_name")
+  @@index([appointmentAt], name: "idx_lead_appointment_at")
   @@map("leads")
+}
+
+// -------------------------------------------------------------
+// LEAD CONTACTS (A10 — multiple people under one company/prospect)
+// -------------------------------------------------------------
+
+model LeadContact {
+  id      String  @id @default(uuid()) @db.Uuid
+  lead    Lead    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  leadId  String  @map("lead_id") @db.Uuid
+  name    String  @db.VarChar(150)
+  title   String? @db.VarChar(150)
+  phone   String? @db.VarChar(50)
+  email   String? @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  callActivities LeadActivity[]
+
+  @@index([leadId], name: "idx_lead_contact_lead")
+  @@map("lead_contacts")
+}
+
+// -------------------------------------------------------------
+// LEAD ACTIVITIES (append-only call / email / note history)
+// -------------------------------------------------------------
+
+model LeadActivity {
+  id         String           @id @default(uuid()) @db.Uuid
+  lead       Lead             @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  leadId     String           @map("lead_id") @db.Uuid
+  author     AdminUser?       @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorId   String?          @map("author_id") @db.Uuid
+  /// Snapshot so the timeline keeps the author name if the account is removed.
+  authorName String           @map("author_name") @db.VarChar(120)
+  type       LeadActivityType
+  body       String           @db.Text
+  /// A9 — permanent call disposition (LeadStatus vocabulary). Null for non-call rows.
+  disposition LeadStatus? @map("disposition")
+  /// A9 — next follow-up noted when the call was logged (immutable on the row).
+  nextFollowUpAt DateTime? @map("next_follow_up_at") @db.Timestamptz(6)
+  /// A10 — contact spoken to (nullable for company-only / legacy rows).
+  contact   LeadContact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  contactId String?      @map("contact_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([leadId, createdAt], name: "idx_lead_activity_lead_created")
+  @@index([leadId, type, createdAt], name: "idx_lead_activity_lead_type_created")
+  @@index([contactId], name: "idx_lead_activity_contact")
+  @@map("lead_activities")
+}
+
+// -------------------------------------------------------------
+// LEAD FOLLOW-UPS (schedule + complete; overdue computed in API)
+// -------------------------------------------------------------
+
+model LeadFollowUp {
+  id              String     @id @default(uuid()) @db.Uuid
+  lead            Lead       @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  leadId          String     @map("lead_id") @db.Uuid
+  createdBy       AdminUser? @relation("LeadFollowUpCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdById     String?    @map("created_by_id") @db.Uuid
+  createdByName   String     @map("created_by_name") @db.VarChar(120)
+  dueAt           DateTime   @map("due_at") @db.Timestamptz(6)
+  notes           String?    @db.Text
+  completedAt     DateTime?  @map("completed_at") @db.Timestamptz(6)
+  completedBy     AdminUser? @relation("LeadFollowUpCompleter", fields: [completedById], references: [id], onDelete: SetNull)
+  completedById   String?    @map("completed_by_id") @db.Uuid
+  completedByName String?    @map("completed_by_name") @db.VarChar(120)
+  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([leadId, dueAt], name: "idx_lead_follow_up_lead_due")
+  @@index([completedAt, dueAt], name: "idx_lead_follow_up_open_due")
+  @@map("lead_follow_ups")
 }
 
 // -------------------------------------------------------------

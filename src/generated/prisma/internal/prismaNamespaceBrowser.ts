@@ -69,6 +69,9 @@ export const ModelName = {
   Assessment: 'Assessment',
   AssessmentInstance: 'AssessmentInstance',
   Lead: 'Lead',
+  LeadContact: 'LeadContact',
+  LeadActivity: 'LeadActivity',
+  LeadFollowUp: 'LeadFollowUp',
   AssessmentResult: 'AssessmentResult'
 } as const
 
@@ -93,9 +96,12 @@ export const AdminUserScalarFieldEnum = {
   name: 'name',
   email: 'email',
   passwordHash: 'passwordHash',
+  adminSetPassword: 'adminSetPassword',
   role: 'role',
   position: 'position',
   isActive: 'isActive',
+  accessPauseReason: 'accessPauseReason',
+  accessPausedAt: 'accessPausedAt',
   emailVerifiedAt: 'emailVerifiedAt',
   lastLoginAt: 'lastLoginAt',
   createdAt: 'createdAt',
@@ -359,16 +365,83 @@ export type AssessmentInstanceScalarFieldEnum = (typeof AssessmentInstanceScalar
 export const LeadScalarFieldEnum = {
   id: 'id',
   ownerId: 'ownerId',
+  companyName: 'companyName',
+  website: 'website',
   name: 'name',
   email: 'email',
   phone: 'phone',
   address: 'address',
+  gatekeeperName: 'gatekeeperName',
+  gatekeeperPhone: 'gatekeeperPhone',
+  decisionMakerName: 'decisionMakerName',
+  decisionMakerEmail: 'decisionMakerEmail',
+  decisionMakerPhone: 'decisionMakerPhone',
+  annualRevenue: 'annualRevenue',
+  annualGrossRevenueKind: 'annualGrossRevenueKind',
+  existingSalesForce: 'existingSalesForce',
+  numberOfSalesRepresentatives: 'numberOfSalesRepresentatives',
+  salesForceSize: 'salesForceSize',
+  leadSource: 'leadSource',
+  status: 'status',
+  notQualifiedReason: 'notQualifiedReason',
+  followUpAt: 'followUpAt',
+  followUpNotes: 'followUpNotes',
+  appointmentAt: 'appointmentAt',
+  appointmentNotes: 'appointmentNotes',
+  appointmentCompletedAt: 'appointmentCompletedAt',
   notes: 'notes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type LeadScalarFieldEnum = (typeof LeadScalarFieldEnum)[keyof typeof LeadScalarFieldEnum]
+
+
+export const LeadContactScalarFieldEnum = {
+  id: 'id',
+  leadId: 'leadId',
+  name: 'name',
+  title: 'title',
+  phone: 'phone',
+  email: 'email',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LeadContactScalarFieldEnum = (typeof LeadContactScalarFieldEnum)[keyof typeof LeadContactScalarFieldEnum]
+
+
+export const LeadActivityScalarFieldEnum = {
+  id: 'id',
+  leadId: 'leadId',
+  authorId: 'authorId',
+  authorName: 'authorName',
+  type: 'type',
+  body: 'body',
+  disposition: 'disposition',
+  nextFollowUpAt: 'nextFollowUpAt',
+  contactId: 'contactId',
+  createdAt: 'createdAt'
+} as const
+
+export type LeadActivityScalarFieldEnum = (typeof LeadActivityScalarFieldEnum)[keyof typeof LeadActivityScalarFieldEnum]
+
+
+export const LeadFollowUpScalarFieldEnum = {
+  id: 'id',
+  leadId: 'leadId',
+  createdById: 'createdById',
+  createdByName: 'createdByName',
+  dueAt: 'dueAt',
+  notes: 'notes',
+  completedAt: 'completedAt',
+  completedById: 'completedById',
+  completedByName: 'completedByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LeadFollowUpScalarFieldEnum = (typeof LeadFollowUpScalarFieldEnum)[keyof typeof LeadFollowUpScalarFieldEnum]
 
 
 export const AssessmentResultScalarFieldEnum = {
